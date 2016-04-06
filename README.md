@@ -38,13 +38,21 @@ collections用来存放这个JSON串中所有的LIST与MAP，在扫描时，一�
 备注：上面的例子中，我们可以看到，XPATH只支持绝对路径（代码都有，大家可以扩展成相对路径），用*[]来表示一个list,用map的key来找其value!
 
 使用说明：
+
 Zson z = new Zson(); //new一个Zson对象
+
 ZsonResult zr = z.parseJson(j); //解析JSON字符串后，得到一个ZsonResult对象
+
 zr对象可用的方法:
+
 Object getValue(String path) //返回一个除了List或Map的Object对象，如果是List或Map，会转换成为JSON字符串返回
+
 Map<String, Object> getMap(String path) //返回一个Map对象
+
 List<Object> getList(String path) //返回一个List对象
+
 String toJsonString(Object obj) //将Map或List转换成为JSON字符串
+
 
 path说明:
 
