@@ -17,6 +17,7 @@ collections用来存放这个JSON串中所有的LIST与MAP，在扫描时，一�
 ![image](https://github.com/zhangfei19841004/zson/blob/master/imgs/index1.png)
 可以看到，这个MAP的key是由1 1.1 1.2 1.1.1这样来组成的，所以，这个key就可以用来表示json的层级结构了，当然我还用了一个list来保存这些key的顺序：private List<String> level = new ArrayList<String>();
 ![image](https://github.com/zhangfei19841004/zson/blob/master/imgs/index2.png)
+
 这样一来，数据结构就很清晰了。接下来要做的事，就是在扫描中的一些判断了，保持以下几个点：
 
 1.碰到[或{就new一个对象，并将对象存放到collections中去
