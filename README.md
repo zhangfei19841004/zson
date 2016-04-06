@@ -10,7 +10,9 @@
 我们在保证只扫描一次字符串的情况下，就把JSON串解析成功。于是，我先定义了一个List: private List<Object> collections = new ArrayList<Object>();
 
 collections用来存放这个JSON串中所有的LIST与MAP，在扫描时，一旦碰到{或[，就new一个Map或List,然后add到collections中去了：
+
 ![image](https://github.com/zhangfei19841004/zson/blob/master/imgs/index.png)
+
 存放进去后，我们需要一个map来记录collections里的list或map的状态，比如是否已经闭合了，是一个list还是一个map,在collections中的index：private Map<String, Map<String, Integer>> index = new HashMap<String, Map<String, Integer>>();
 ![image](https://github.com/zhangfei19841004/zson/blob/master/imgs/index1.png)
 可以看到，这个MAP的key是由1 1.1 1.2 1.1.1这样来组成的，所以，这个key就可以用来表示json的层级结构了，当然我还用了一个list来保存这些key的顺序：private List<String> level = new ArrayList<String>();
