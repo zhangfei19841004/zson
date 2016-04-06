@@ -1,8 +1,6 @@
 # zson
 专为测试人员打造的JSON解析器
 
-JAVA自已设计JSON解析器
-
 当然，有很多很好的JSON解析的JAR包，比如JSONOBJECT,GSON，甚至也有为我们测试人员而打造的JSONPATH，但我还是自已实现了一下（之前也实现过，现在属于重构）。
 
 思想是这样的，以这个JSON串为例：String j = "{\"a\":\"b\",\"c\\\"b\":{\"a\":1},\"d\":[\"a\",{\"a\":3},{\"a\":2},\"\"],\"e\":\"b\"}";
@@ -36,4 +34,23 @@ collections用来存放这个JSON串中所有的LIST与MAP，在扫描时，一�
 
 贴一下使用方法：
 ![image](https://github.com/zhangfei19841004/zson/blob/master/imgs/index3.png)
- 备注：上面的例子中，我们可以看到，XPATH只支持绝对路径（代码都有，大家可以扩展成相对路径），用*[]来表示一个list,用map的key来找其value!
+
+备注：上面的例子中，我们可以看到，XPATH只支持绝对路径（代码都有，大家可以扩展成相对路径），用*[]来表示一个list,用map的key来找其value!
+
+使用说明：
+Zson z = new Zson(); //new一个Zson对象
+ZsonResult zr = z.parseJson(j); //解析JSON字符串后，得到一个ZsonResult对象
+zr对象可用的方法:
+Object getValue(String path) //返回一个除了List或Map的Object对象，如果是List或Map，会转换成为JSON字符串返回
+Map<String, Object> getMap(String path) //返回一个Map对象
+List<Object> getList(String path) //返回一个List对象
+String toJsonString(Object obj) //将Map或List转换成为JSON字符串
+
+path说明:
+path目前只支持绝对路径，举例:
+[{ "firstName": "Eric", "lastName": "Clapton", "instrument": "guitar" },{ "firstName": "Sergei", "lastName": "Rachmaninoff", "instrument": "piano" }]
+找出第二个firstName： /*[1]/firstName
+找出第一个Map: /*[0]
+{"a":["a"],"cb":{"a":1},"d":["a",{"a":[1,2]},{"a":2},""],"e":"b"}
+/a/*[1]/a 会找出[1,2]
+/a/*[1]/a/*[0] 会找出1
