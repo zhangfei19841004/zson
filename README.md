@@ -47,10 +47,18 @@ List<Object> getList(String path) //返回一个List对象
 String toJsonString(Object obj) //将Map或List转换成为JSON字符串
 
 path说明:
+
 path目前只支持绝对路径，举例:
+
 [{ "firstName": "Eric", "lastName": "Clapton", "instrument": "guitar" },{ "firstName": "Sergei", "lastName": "Rachmaninoff", "instrument": "piano" }]
+
 找出第二个firstName： /*[1]/firstName
+
 找出第一个Map: /*[0]
+
 {"a":["a"],"cb":{"a":1},"d":["a",{"a":[1,2]},{"a":2},""],"e":"b"}
+
 /a/*[1]/a 会找出[1,2]
+
 /a/*[1]/a/*[0] 会找出1
+
