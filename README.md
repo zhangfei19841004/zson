@@ -1,7 +1,7 @@
 # zson
 专为测试人员打造的JSON解析器
 
- JAVA自已设计JSON解析器
+JAVA自已设计JSON解析器
 
 当然，有很多很好的JSON解析的JAR包，比如JSONOBJECT,GSON，甚至也有为我们测试人员而打造的JSONPATH，但我还是自已实现了一下（之前也实现过，现在属于重构）。
 
@@ -33,10 +33,6 @@ collections用来存放这个JSON串中所有的LIST与MAP，在扫描时，一�
 6.碰到]或}符号，则表示一个list或map被解析完全了，则这时候要去更新index中的对应的list或map的状态了。
 
 解析完了后，所有的数据都在collections index level这三个变量中了，于是，我们只需要定一个取数据的规则就行了，我用的是一种类似于xpath的语法格式来取值的，这时候只需要解析下这个xpath路径就可以得出这个key，然后在collections中拿值就可以了！
-
-以下是代码下载地址：
-
-http://files.cnblogs.com/files/zhangfei/zson.rar
 
 贴一下使用方法：
 ![image](https://github.com/zhangfei19841004/zson/blob/master/imgs/index3.png)
