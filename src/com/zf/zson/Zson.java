@@ -11,6 +11,8 @@ public class Zson {
 	
 	private ZsonResult zResult;
 	
+	private ZsonResultInfo zResultInfo;
+	
 	public Zson() {
 		
 	}
@@ -28,12 +30,12 @@ public class Zson {
 	private void addElementToCollections(int type, String element, String v, boolean isFinished){
 		try{
 			int lastUNFIndex = this.getLatestUNFinishedLevelIndex();
-			Map<String, Integer> elementStatus = zResult.getIndex().get(zResult.getLevel().get(lastUNFIndex));
+			Map<String, Integer> elementStatus = zResultInfo.getIndex().get(zResultInfo.getLevel().get(lastUNFIndex));
 			if(elementStatus.get(ZsonUtils.TYPE)!=type){
-				zResult.setValid(false);
+				zResultInfo.setValid(false);
 				throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 			}else{
-				Object elementObj = zResult.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
+				Object elementObj = zResultInfo.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
 				if(type==1){
 					List<Object> elementList = (List<Object>) elementObj; 
 					if(!(elementList.size()==0 && element.equals("") && isFinished)){
@@ -43,7 +45,7 @@ public class Zson {
 					Map<String, Object> elementMap = (Map<String, Object>) elementObj;
 					if(!(elementMap.size()==0 && element.equals("") && v.equals("") && isFinished)){
 						if(!this.isValidElement(v)){
-							zResult.setValid(false);
+							zResultInfo.setValid(false);
 							throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 						}
 						elementMap.put(this.getElementInstance(element).toString(), this.getElementInstance(v));
@@ -54,7 +56,7 @@ public class Zson {
 				elementStatus.put(ZsonUtils.STATUS, 1);
 			}
 		}catch(Exception e){
-			zResult.setValid(false);
+			zResultInfo.setValid(false);
 			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 		}
 	}
@@ -62,19 +64,19 @@ public class Zson {
 	private void setLatestUNFinishedToFinished(){
 		try{
 			int lastUNFIndex = this.getLatestUNFinishedLevelIndex();
-			Map<String, Integer> elementStatus = zResult.getIndex().get(zResult.getLevel().get(lastUNFIndex));
+			Map<String, Integer> elementStatus = zResultInfo.getIndex().get(zResultInfo.getLevel().get(lastUNFIndex));
 			elementStatus.put(ZsonUtils.STATUS, 1);
 		}catch(Exception e){
-			zResult.setValid(false);
+			zResultInfo.setValid(false);
 			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 		}
 	}
 	
 	private Map<String, Integer> getElementByKey(String key){
-		if(zResult.getIndex().containsKey(key)){
-			return zResult.getIndex().get(key);
+		if(zResultInfo.getIndex().containsKey(key)){
+			return zResultInfo.getIndex().get(key);
 		}else{
-			zResult.setValid(false);
+			zResultInfo.setValid(false);
 			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 		}
 	}
@@ -85,46 +87,46 @@ public class Zson {
 			String pKey = key.substring(0, key.lastIndexOf('.'));
 			Map<String, Integer> pElement = this.getElementByKey(pKey);
 			if(isMap && pElement.get(ZsonUtils.TYPE)==1){
-				zResult.setValid(false);
+				zResultInfo.setValid(false);
 				throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 			}
 			if(isMap){
-				Map<String, Object> elementMap = (Map<String, Object>) zResult.getCollections().get(pElement.get(ZsonUtils.INDEX));
+				Map<String, Object> elementMap = (Map<String, Object>) zResultInfo.getCollections().get(pElement.get(ZsonUtils.INDEX));
 				Map<String, String> temp = new HashMap<String, String>();
 				temp.put(ZsonUtils.LINK, key);
 				elementMap.put(this.getElementInstance(element).toString(), temp);
 			}else{
-				List<Object> elementList = (List<Object>) zResult.getCollections().get(pElement.get(ZsonUtils.INDEX));
+				List<Object> elementList = (List<Object>) zResultInfo.getCollections().get(pElement.get(ZsonUtils.INDEX));
 				List<String> temp = new ArrayList<String>();
 				temp.add(key);
 				elementList.add(temp);
 			}
 		}catch(Exception e){
-			zResult.setValid(false);
+			zResultInfo.setValid(false);
 			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 		}
 	}
 	
 	private String addToCollections(int type){
 		if(type==0){
-			zResult.getCollections().add(new HashMap<String, Object>());
+			zResultInfo.getCollections().add(new HashMap<String, Object>());
 		}else if(type==1){
-			zResult.getCollections().add(new ArrayList<Object>());
+			zResultInfo.getCollections().add(new ArrayList<Object>());
 		}
 		int status = 0;
 		int index = 0;
 		String key = ZsonUtils.BEGIN_KEY;
-		if(zResult.getLevel().size()!=0){
-			index = zResult.getCollections().size()-1;
+		if(zResultInfo.getLevel().size()!=0){
+			index = zResultInfo.getCollections().size()-1;
 			int latestIndex = this.getLatestFinishedLevelIndex();
-			key = this.generateIndexKey(zResult.getLevel().get(latestIndex));
+			key = this.generateIndexKey(zResultInfo.getLevel().get(latestIndex));
 		}
-		zResult.getLevel().add(key);
+		zResultInfo.getLevel().add(key);
 		Map<String, Integer> objMap = new HashMap<String, Integer>();
 		objMap.put(ZsonUtils.TYPE, type);
 		objMap.put(ZsonUtils.STATUS, status);
 		objMap.put(ZsonUtils.INDEX, index);
-		zResult.getIndex().put(key, objMap);
+		zResultInfo.getIndex().put(key, objMap);
 		return key;
 	}
 	
@@ -133,8 +135,8 @@ public class Zson {
 	 * @return
 	 */
 	private int getLatestFinishedLevelIndex(){
-		for (int i = zResult.getLevel().size()-1; i >= 0; i--) {
-			if(zResult.getIndex().get(zResult.getLevel().get(i)).get(ZsonUtils.STATUS)==0){
+		for (int i = zResultInfo.getLevel().size()-1; i >= 0; i--) {
+			if(zResultInfo.getIndex().get(zResultInfo.getLevel().get(i)).get(ZsonUtils.STATUS)==0){
 				return i;
 			}
 		}
@@ -142,8 +144,8 @@ public class Zson {
 	}
 	
 	private int getLatestUNFinishedLevelIndex(){
-		for (int i = zResult.getLevel().size()-1; i >= 0; i--) {
-			if(zResult.getIndex().get(zResult.getLevel().get(i)).get(ZsonUtils.STATUS)==0){
+		for (int i = zResultInfo.getLevel().size()-1; i >= 0; i--) {
+			if(zResultInfo.getIndex().get(zResultInfo.getLevel().get(i)).get(ZsonUtils.STATUS)==0){
 				return i;
 			}
 		}
@@ -153,7 +155,7 @@ public class Zson {
 	private String generateIndexKey(String parentKey){
 		int begin = 1;
 		while(true){
-			if(zResult.getIndex().containsKey(parentKey+"."+begin)){
+			if(zResultInfo.getIndex().containsKey(parentKey+"."+begin)){
 				begin++;
 			}else{
 				return parentKey+"."+begin;
@@ -181,11 +183,11 @@ public class Zson {
 			}else if(element.toLowerCase().matches("false")){
 				return false;
 			}else{
-				zResult.setValid(false);
+				zResultInfo.setValid(false);
 				throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 			}
 		}catch(Exception e){
-			zResult.setValid(false);
+			zResultInfo.setValid(false);
 			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 		}
 	}
@@ -233,7 +235,7 @@ public class Zson {
 			sb.append(chars[i]);
 			sb.append(chars[i+1]);
 		}catch(Exception e){
-			zResult.setValid(false);
+			zResultInfo.setValid(false);
 			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 		}
 	}
@@ -251,7 +253,7 @@ public class Zson {
 	
 	private void handleMapConnector(ZsonInfo zinfo, StringBuffer sb){
 		if(zinfo.isMark() || zinfo.getMarkIndex()%2!=0 || sb.length()==0 || zinfo.isMap() || zinfo.isElementSeparate()){
-			zResult.setValid(false);
+			zResultInfo.setValid(false);
 			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 		}
 		zinfo.setMap(true);
@@ -266,7 +268,7 @@ public class Zson {
 			zinfo.setElement(sb.toString().trim());
 		}
 		if(zinfo.isElementSeparate() || zinfo.isMark() || zinfo.getMarkIndex()%2!=0 || (zinfo.isMap() && (!zinfo.getElement().equals("") && !this.isValidMapKey(zinfo.getElement()))) || (!zinfo.getElement().equals("") && !this.isValidElement(zinfo.getElement()))){
-			zResult.setValid(false);
+			zResultInfo.setValid(false);
 			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 		}
 		if(!zinfo.getElement().equals("")){
@@ -290,7 +292,7 @@ public class Zson {
 			zinfo.setElement(sb.toString().trim());
 		}
 		if(zinfo.isElementSeparate() || zinfo.isMark() || zinfo.getMarkIndex()%2!=0 || (zinfo.isMap() && (!zinfo.getElement().equals("") && !this.isValidMapKey(zinfo.getElement()))) || (!zinfo.getElement().equals("") && !this.isValidElement(zinfo.getElement()))){
-			zResult.setValid(false);
+			zResultInfo.setValid(false);
 			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 		}
 		if(!zinfo.getElement().equals("")){
@@ -310,16 +312,17 @@ public class Zson {
 	
 	private void fromJson(){
 		if(json==null){
-			zResult.setValid(false);
+			//zResultInfo.setValid(false);
 			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 		}
 		char[] chars = json.toCharArray();
 		if(chars[0]!=ZsonUtils.jsonListBegin && chars[0]!=ZsonUtils.jsonMapBegin){
-			zResult.setValid(false);
+			//zResultInfo.setValid(false);
 			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 		}
 		ZsonInfo zinfo = new ZsonInfo();
 		zResult = new ZsonResult();
+		zResultInfo = zResult.getzResultInfo();
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < chars.length; i++) {
 			char temp = chars[i];

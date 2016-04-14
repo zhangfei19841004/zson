@@ -3,87 +3,40 @@ package com.zf.zson;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 public class ZsonResult {
 	
-	private boolean valid = true;
+	private ZsonResultInfo zResultInfo;
 	
-	/**
-	 * 存放解析JSON过程中所有的LIST与MAP
-	 */
-	private List<Object> collections = new ArrayList<Object>();
+	private ZsonPath zPath;
 	
-	/**
-	 * index的最外层MAP的key为1 1.1 1.1.2这种形式，表示JSON的层次结构
-	 * 里面的MAP为当前层次中的数据结构类型与状态，比如{"type":0,"status":0,"index":0},
-	 * type有0,1，0表示MAP, 1表示LIST, 
-	 * status有0，1，0表示没有解析完成，1表示已解析完成
-	 * index指对象在collections中的index
-	 */
-	private Map<String, Map<String, Integer>> index = new HashMap<String, Map<String, Integer>>();
-	
-	private boolean allFinished = false;
-	
-	/**
-	 * 存放JSON的层次结构比如1 1.1 1.1.2
-	 */
-	private List<String> level = new ArrayList<String>();
-	
-	public List<Object> getCollections() {
-		return collections;
-	}
-
-	public void setCollections(List<Object> collections) {
-		this.collections = collections;
-	}
-
-	public Map<String, Map<String, Integer>> getIndex() {
-		return index;
-	}
-
-	public void setIndex(Map<String, Map<String, Integer>> index) {
-		this.index = index;
-	}
-
-	public boolean isAllFinished() {
-		return allFinished;
-	}
-
-	public void setAllFinished(boolean allFinished) {
-		this.allFinished = allFinished;
-	}
-
-	public List<String> getLevel() {
-		return level;
-	}
-
-	public void setLevel(List<String> level) {
-		this.level = level;
-	}
-
-	public void setValid(boolean valid) {
-		this.valid = valid;
+	public ZsonResult(){
+		zResultInfo = new ZsonResultInfo();
+		zPath = new ZsonPath();
 	}
 	
-	private ZsonPath zPath = new ZsonPath();
+	public ZsonResultInfo getzResultInfo() {
+		return zResultInfo;
+	}
 
 	public boolean isValid(){
-		if(!valid || collections.size()==0){
-			return valid;
+		if(!zResultInfo.isValid() || zResultInfo.getCollections().size()==0){
+			return zResultInfo.isValid();
 		}
-		if(!allFinished){
-			Collection<Map<String, Integer>> values = index.values();
+		if(!zResultInfo.isAllFinished()){
+			Collection<Map<String, Integer>> values = zResultInfo.getIndex().values();
 			for (Map<String, Integer> map : values) {
 				if(map.get(ZsonUtils.STATUS)==0){
-					valid = false;
-					allFinished = true;
-					return valid;
+					zResultInfo.setValid(false);
+					zResultInfo.setAllFinished(true);
+					return zResultInfo.isValid();
 				}
 			}
 		}
-		return valid;
+		return zResultInfo.isValid();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -102,6 +55,27 @@ public class ZsonResult {
 	}
 	
 	@SuppressWarnings("unchecked")
+	private void getObjectsByKey(String key, ZsonPathInfo pathInfo){
+		for (String l : zResultInfo.getLevel()) {
+			if(this.compareKey(key, l)<=0){
+				Map<String, Integer> indexInfo = zResultInfo.getIndex().get(l);
+				Object actualValue = zResultInfo.getCollections().get(indexInfo.get(ZsonUtils.INDEX));
+				if(pathInfo.isPathIsList() && indexInfo.get(ZsonUtils.TYPE)==1){
+					List<Object> actualList = (List<Object>) actualValue;
+					if(pathInfo.getPathListIndex()<=actualList.size()-1){
+						zResultInfo.getResults().add(actualList.get(pathInfo.getPathListIndex()));
+					}
+				}else if(!pathInfo.isPathIsList() && indexInfo.get(ZsonUtils.TYPE)==0){
+					Map<String, Object> actualMap = (Map<String, Object>) actualValue;
+					if(actualMap.containsKey(pathInfo.getPathKey())){
+						zResultInfo.getResults().add(actualMap.get(pathInfo.getPathKey()));
+					}
+				}
+			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
 	private Object getObject(String path){
 		if(!this.isValid()){
 			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
@@ -112,8 +86,8 @@ public class ZsonResult {
 		Object value = null;
 		int index = 0;
 		for (String k : list) {
-			Map<String, Integer> elementStatus = this.getIndex().get(key);
-			Object elementObj = this.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
+			Map<String, Integer> elementStatus = zResultInfo.getIndex().get(key);
+			Object elementObj = zResultInfo.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
 			if(elementStatus.get(ZsonUtils.TYPE)==0){
 				Map<String, Object> elementMap = (Map<String, Object>) elementObj; 
 				value = elementMap.get(k);
@@ -131,8 +105,8 @@ public class ZsonResult {
 			throw new RuntimeException("path is not valid!");
 		}else{
 			if(value instanceof HashMap || value instanceof ArrayList){
-				Map<String, Integer> elementStatus = this.getIndex().get(key);
-				Object elementObj = this.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
+				Map<String, Integer> elementStatus = zResultInfo.getIndex().get(key);
+				Object elementObj = zResultInfo.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
 				value = this.restoreObject(elementObj);
 			}else if(value instanceof String){
 				value = ZsonUtils.convert((String) value);
@@ -148,6 +122,76 @@ public class ZsonResult {
 		}else{
 			return obj;
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private List<Object> getObjects(String path){
+		if(!this.isValid()){
+			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
+		}
+		zPath.setPath(path);
+		List<ZsonPathInfo> list = zPath.getRelativePath();
+		for (ZsonPathInfo pathInfo : list) {
+			if(pathInfo.getPathKeyIsRelative()){
+				List<Object> resultList = zResultInfo.getResults();
+				if(resultList.size()==0){
+					String key = ZsonUtils.BEGIN_KEY;
+					this.getObjectsByKey(key, pathInfo);
+				}else{
+					Iterator<Object> it = resultList.iterator();
+					while(it.hasNext()){
+						Object element = it.next();
+						if(element instanceof HashMap || element instanceof ArrayList){
+							String key = this.getElementKey(element);
+							this.getObjectsByKey(key, pathInfo);
+						}else{
+							it.remove();
+						}
+					}
+				}
+			}else{
+				List<Object> resultList = zResultInfo.getResults();
+				if(resultList.size()==0){
+					String key = ZsonUtils.BEGIN_KEY;
+					Map<String, Integer> elementStatus = zResultInfo.getIndex().get(key);
+					Object elementObj = zResultInfo.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
+					if(elementStatus.get(ZsonUtils.TYPE)==0){
+						Map<String, Object> elementMap = (Map<String, Object>) elementObj; 
+						zResultInfo.getResults().add(elementMap.get(pathInfo.getPathKey()));
+					}else{
+						List<Object> elementList = (List<Object>) elementObj; 
+						zResultInfo.getResults().add(elementList.get(pathInfo.getPathListIndex()));
+					}
+				}else{
+					Iterator<Object> it = resultList.iterator();
+					while(it.hasNext()){
+						Object element = it.next();
+						if(element instanceof HashMap || element instanceof ArrayList){
+							String key = this.getElementKey(element);
+							Map<String, Integer> elementStatus = zResultInfo.getIndex().get(key);
+							Object elementObj = zResultInfo.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
+							if(elementStatus.get(ZsonUtils.TYPE)==0){
+								Map<String, Object> elementMap = (Map<String, Object>) elementObj; 
+								zResultInfo.getResults().add(elementMap.get(pathInfo.getPathKey()));
+							}else{
+								List<Object> elementList = (List<Object>) elementObj; 
+								zResultInfo.getResults().add(elementList.get(pathInfo.getPathListIndex()));
+							}
+						}else{
+							it.remove();
+						}
+					}
+				}
+				
+			}
+			
+		}
+		
+		return zResultInfo.getResults();
+	}
+	
+	public List<Object> getValues(String path){
+		return this.getObjects(path);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -187,8 +231,8 @@ public class ZsonResult {
 			Object mapValue = map.get(mapKey);
 			if(mapValue instanceof Map || mapValue instanceof List){
 				String key = this.getElementKey(mapValue);
-				Map<String, Integer> elementStatus = this.getIndex().get(key);
-				Object elementObj = this.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
+				Map<String, Integer> elementStatus = zResultInfo.getIndex().get(key);
+				Object elementObj = zResultInfo.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
 				restore.put(mapKey, this.restoreObject(elementObj));
 			}else{
 				restore.put(mapKey, mapValue);
@@ -202,8 +246,8 @@ public class ZsonResult {
 		for (Object e : list) {
 			if(e instanceof Map || e instanceof List){
 				String key = this.getElementKey(e);
-				Map<String, Integer> elementStatus = this.getIndex().get(key);
-				Object elementObj = this.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
+				Map<String, Integer> elementStatus = zResultInfo.getIndex().get(key);
+				Object elementObj = zResultInfo.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
 				restore.add(this.restoreObject(elementObj));
 			}else{
 				restore.add(e);
@@ -281,6 +325,35 @@ public class ZsonResult {
 		sb.append(ZsonUtils.jsonListEnd);
 		return sb.toString();
 	}
+	
+	private int compareKey(String key1, String key2){
+		String[] keys1 = key1.split("\\.");
+		String[] keys2 = key2.split("\\.");
+		if(keys1.length<keys2.length){
+			return -1;
+		}else if(keys1.length>keys2.length){
+			return 1;
+		}
+		for (int i = 0; i < keys1.length; i++) {
+			if(Integer.valueOf(keys1[i])>Integer.valueOf(keys2[i])){
+				return 1;
+			}else if(Integer.valueOf(keys1[i])<Integer.valueOf(keys2[i])){
+				return -1;
+			}
+		}
+		return 0;
+	}
+	
+//	private boolean isChildKey(String key1, String key2){
+//		if(ZsonUtils.BEGIN_KEY.equals(key1)){
+//			return true;
+//		}
+//		if(key2.indexOf(key1)==0){
+//			return true;
+//		}else{
+//			return false;
+//		}
+//	}
 	
 	public static void main(String[] args) {
 		ZsonResult zr = new ZsonResult();
