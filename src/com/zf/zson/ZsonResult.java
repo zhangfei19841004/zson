@@ -54,8 +54,23 @@ public class ZsonResult {
 		return key;
 	}
 	
+	private void addElementToResults(Object element){
+		String key = this.getElementKey(element);
+		if(key==null || !zResultInfo.getResultLevel().contains(key)){
+			zResultInfo.getResultsTemp().add(element);
+			if(key!=null){
+				zResultInfo.getResultLevel().add(key);
+			}
+		}
+	}
+	
+	/**
+	 * 相对路径下去遍历level，然后取值
+	 * @param key
+	 * @param pathInfo
+	 */
 	@SuppressWarnings("unchecked")
-	private void getObjectsByKey(String key, ZsonPathInfo pathInfo){
+	private void getRelativeObjectsByKey(String key, ZsonPathInfo pathInfo){
 		for (String l : zResultInfo.getLevel()) {
 			if(this.compareKey(key, l)<=0){
 				Map<String, Integer> indexInfo = zResultInfo.getIndex().get(l);
@@ -63,15 +78,37 @@ public class ZsonResult {
 				if(pathInfo.isPathIsList() && indexInfo.get(ZsonUtils.TYPE)==1){
 					List<Object> actualList = (List<Object>) actualValue;
 					if(pathInfo.getPathListIndex()<=actualList.size()-1){
-						zResultInfo.getResults().add(actualList.get(pathInfo.getPathListIndex()));
+						Object element = actualList.get(pathInfo.getPathListIndex());
+						this.addElementToResults(element);
 					}
 				}else if(!pathInfo.isPathIsList() && indexInfo.get(ZsonUtils.TYPE)==0){
 					Map<String, Object> actualMap = (Map<String, Object>) actualValue;
 					if(actualMap.containsKey(pathInfo.getPathKey())){
-						zResultInfo.getResults().add(actualMap.get(pathInfo.getPathKey()));
+						Object element = actualMap.get(pathInfo.getPathKey());
+						this.addElementToResults(element);
 					}
 				}
 			}
+		}
+	}
+	
+	/**
+	 * 绝对路径下直接取值
+	 * @param key
+	 * @param pathInfo
+	 */
+	@SuppressWarnings("unchecked")
+	private void getObjectsByKey(String key, ZsonPathInfo pathInfo){
+		Map<String, Integer> elementStatus = zResultInfo.getIndex().get(key);
+		Object elementObj = zResultInfo.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
+		if(elementStatus.get(ZsonUtils.TYPE)==0){
+			Map<String, Object> elementMap = (Map<String, Object>) elementObj; 
+			Object element = elementMap.get(pathInfo.getPathKey());
+			this.addElementToResults(element);
+		}else{
+			List<Object> elementList = (List<Object>) elementObj; 
+			Object element = elementList.get(pathInfo.getPathListIndex());
+			this.addElementToResults(element);
 		}
 	}
 	
@@ -124,73 +161,63 @@ public class ZsonResult {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	private List<Object> getObjects(String path){
 		if(!this.isValid()){
 			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 		}
 		zPath.setPath(path);
 		List<ZsonPathInfo> list = zPath.getRelativePath();
+		int index = 0;
 		for (ZsonPathInfo pathInfo : list) {
-			if(pathInfo.getPathKeyIsRelative()){
-				List<Object> resultList = zResultInfo.getResults();
-				if(resultList.size()==0){
-					String key = ZsonUtils.BEGIN_KEY;
-					this.getObjectsByKey(key, pathInfo);
+			List<Object> resultList = zResultInfo.getResults();
+			int len = resultList.size();
+			if(index>0 && len==0){
+				break;
+			}
+			if(resultList.size()==0){
+				String key = ZsonUtils.BEGIN_KEY;
+				if(pathInfo.getPathKeyIsRelative()){
+					this.getRelativeObjectsByKey(key, pathInfo);
 				}else{
-					Iterator<Object> it = resultList.iterator();
-					while(it.hasNext()){
-						Object element = it.next();
-						if(element instanceof HashMap || element instanceof ArrayList){
-							String key = this.getElementKey(element);
-							this.getObjectsByKey(key, pathInfo);
-						}else{
-							it.remove();
-						}
-					}
+					this.getObjectsByKey(key, pathInfo);
 				}
 			}else{
-				List<Object> resultList = zResultInfo.getResults();
-				if(resultList.size()==0){
-					String key = ZsonUtils.BEGIN_KEY;
-					Map<String, Integer> elementStatus = zResultInfo.getIndex().get(key);
-					Object elementObj = zResultInfo.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
-					if(elementStatus.get(ZsonUtils.TYPE)==0){
-						Map<String, Object> elementMap = (Map<String, Object>) elementObj; 
-						zResultInfo.getResults().add(elementMap.get(pathInfo.getPathKey()));
-					}else{
-						List<Object> elementList = (List<Object>) elementObj; 
-						zResultInfo.getResults().add(elementList.get(pathInfo.getPathListIndex()));
-					}
-				}else{
-					Iterator<Object> it = resultList.iterator();
-					while(it.hasNext()){
-						Object element = it.next();
-						if(element instanceof HashMap || element instanceof ArrayList){
-							String key = this.getElementKey(element);
-							Map<String, Integer> elementStatus = zResultInfo.getIndex().get(key);
-							Object elementObj = zResultInfo.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
-							if(elementStatus.get(ZsonUtils.TYPE)==0){
-								Map<String, Object> elementMap = (Map<String, Object>) elementObj; 
-								zResultInfo.getResults().add(elementMap.get(pathInfo.getPathKey()));
-							}else{
-								List<Object> elementList = (List<Object>) elementObj; 
-								zResultInfo.getResults().add(elementList.get(pathInfo.getPathListIndex()));
-							}
+				Iterator<Object> it = resultList.iterator();
+				while(it.hasNext()) {
+					Object element = it.next();
+					if(element instanceof HashMap || element instanceof ArrayList){
+						String key = this.getElementKey(element);
+						if(pathInfo.getPathKeyIsRelative()){
+							this.getRelativeObjectsByKey(key, pathInfo);
 						}else{
-							it.remove();
+							this.getObjectsByKey(key, pathInfo);
 						}
 					}
 				}
-				
 			}
-			
+			this.convertResult();
+			index++;
 		}
-		
+		//去掉MAP或LIST，只保留非MAP或LIST的结果
+		Iterator<Object> it = zResultInfo.getResults().iterator();
+		while(it.hasNext()){
+			Object element = it.next();
+			if(element instanceof Map || element instanceof List){
+				it.remove();
+			}
+		}
 		return zResultInfo.getResults();
 	}
 	
+	private void convertResult(){
+		zResultInfo.setResults(zResultInfo.getResultsTemp());
+		zResultInfo.setResultsTemp(new ArrayList<Object>());
+	}
+	
 	public List<Object> getValues(String path){
+		zResultInfo.getResults().clear();
+		zResultInfo.getResultsTemp().clear();
+		zResultInfo.getResultLevel().clear();
 		return this.getObjects(path);
 	}
 	
@@ -326,34 +353,31 @@ public class ZsonResult {
 		return sb.toString();
 	}
 	
+//	private int compareKey(String key1, String key2){
+//		String[] keys1 = key1.split("\\.");
+//		String[] keys2 = key2.split("\\.");
+//		if(keys1.length<keys2.length){
+//			return -1;
+//		}else if(keys1.length>keys2.length){
+//			return 1;
+//		}
+//		for (int i = 0; i < keys1.length; i++) {
+//			if(Integer.valueOf(keys1[i])>Integer.valueOf(keys2[i])){
+//				return 1;
+//			}else if(Integer.valueOf(keys1[i])<Integer.valueOf(keys2[i])){
+//				return -1;
+//			}
+//		}
+//		return 0;
+//	}
+	
 	private int compareKey(String key1, String key2){
-		String[] keys1 = key1.split("\\.");
-		String[] keys2 = key2.split("\\.");
-		if(keys1.length<keys2.length){
+		if(key2.indexOf(key1)==0){
 			return -1;
-		}else if(keys1.length>keys2.length){
+		}else{
 			return 1;
 		}
-		for (int i = 0; i < keys1.length; i++) {
-			if(Integer.valueOf(keys1[i])>Integer.valueOf(keys2[i])){
-				return 1;
-			}else if(Integer.valueOf(keys1[i])<Integer.valueOf(keys2[i])){
-				return -1;
-			}
-		}
-		return 0;
 	}
-	
-//	private boolean isChildKey(String key1, String key2){
-//		if(ZsonUtils.BEGIN_KEY.equals(key1)){
-//			return true;
-//		}
-//		if(key2.indexOf(key1)==0){
-//			return true;
-//		}else{
-//			return false;
-//		}
-//	}
 	
 	public static void main(String[] args) {
 		ZsonResult zr = new ZsonResult();
