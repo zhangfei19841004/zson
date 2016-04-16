@@ -15,7 +15,7 @@ public class Demo {
 
 		String j1 = "[\"\\\"\"]";
 		ZsonResult zr1 = z.parseJson(j);
-		System.out.println(zr1.getMap("/content/cmdData/data/musicInfo/*[0]"));
+		//System.out.println(zr1.getMap("/content/cmdData/data/musicInfo/*[0]"));
 		System.out.println(zr1.getValues("//*[0]"));
 		System.out.println(zr1.getValues("//*[1]"));
 		
