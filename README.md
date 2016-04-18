@@ -62,7 +62,18 @@ path说明:
 
 path目前只支持绝对路径，举例:
 
-[{ "firstName": "Eric", "lastName": "Clapton", "instrument": "guitar" },{ "firstName": "Sergei", "lastName": "Rachmaninoff", "instrument": "piano" }]
+[
+    {
+        "firstName": "Eric",
+        "lastName": "Clapton",
+        "instrument": "guitar"
+    },
+    {
+        "firstName": "Sergei",
+        "lastName": "Rachmaninoff",
+        "instrument": "piano"
+    }
+]
 
 找出第二个firstName： /*[1]/firstName
 
