@@ -174,7 +174,11 @@ public class Zson {
 				return element.substring(1,element.length()-1);
 			}else if(element.matches("\\d+")){
 				return Long.valueOf(element);
+			}else if(element.matches("\\-\\d+")){
+				return Long.valueOf(element);
 			}else if(element.matches("\\d+\\.\\d+")){
+				return Double.valueOf(element);
+			}else if(element.matches("\\-\\d+\\.\\d+")){
 				return Double.valueOf(element);
 			}else if(element.toLowerCase().matches("null")){
 				return null;
@@ -197,7 +201,11 @@ public class Zson {
 			return true;
 		}else if(element.matches("\\d+")){
 			return true;
+		}else if(element.matches("\\-\\d+")){
+			return true;
 		}else if(element.matches("\\d+\\.\\d+")){
+			return true;
+		}else if(element.matches("\\-\\d+\\.\\d+")){
 			return true;
 		}else if(element.toLowerCase().matches("null")){
 			return true;
