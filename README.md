@@ -77,7 +77,7 @@ collections用来存放这个JSON串中所有的LIST与MAP，在扫描时，一�
 
 ![image](https://github.com/zhangfei19841004/zson/blob/master/imgs/index3.png)
 
-备注：上面的例子中，我们可以看到，类XPATH的路径支持绝对路径和相对路径，用*[]来表示一个list,[]里面放要获取的值在list中的index，比如/*[0]指获取list中的第1个值。用map的key来获取其对应的值!
+>备注：上面的例子中，我们可以看到，类XPATH的路径支持绝对路径和相对路径，用\*\[]来表示一个list,[]里面放要获取的值在list中的index，比如/*\[0]指获取list中的第1个值。用map的key来获取其对应的值!
 
 ***
 
