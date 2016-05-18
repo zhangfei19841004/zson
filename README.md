@@ -147,7 +147,7 @@ String toJsonString(Object obj) //将Map或List转换成为JSON字符串
 支持相对路径！
 示例二中：
 getValues()
-zr.getValues("/a//*[0]"));//输出a
+zr.getValues("/a//*[0]"));//输出[a]
 zr.getValues("//*[1]"));//输出[2]
 说明:相对路径所得出来的值只显示非MAP或LIST的值，如果是MAP或LIST，则会被忽略！
 ```
