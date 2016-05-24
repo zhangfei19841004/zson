@@ -1,5 +1,6 @@
 package com.zf.zson;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -180,6 +181,8 @@ public class Zson {
 				return Double.valueOf(element);
 			}else if(element.matches("\\-\\d+\\.\\d+")){
 				return Double.valueOf(element);
+			}else if(this.isBigDecimal(element)){
+				return Double.valueOf(this.getBigDecimal(element));
 			}else if(element.toLowerCase().matches("null")){
 				return null;
 			}else if(element.toLowerCase().matches("true")){
@@ -206,6 +209,8 @@ public class Zson {
 		}else if(element.matches("\\d+\\.\\d+")){
 			return true;
 		}else if(element.matches("\\-\\d+\\.\\d+")){
+			return true;
+		}else if(this.isBigDecimal(element)){
 			return true;
 		}else if(element.toLowerCase().matches("null")){
 			return true;
@@ -373,6 +378,20 @@ public class Zson {
 		this.json = json;
 		this.fromJson();
 		return zResult;
+	}
+	
+	private boolean isBigDecimal(String math){
+		try{
+			new BigDecimal(math);
+		}catch(Exception e){
+			return false;
+		}
+		return true;
+	}
+	
+	private String getBigDecimal(String math){
+		BigDecimal bd = new BigDecimal(math);
+		return bd.toPlainString();
 	}
 	
 }
