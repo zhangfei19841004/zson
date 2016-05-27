@@ -10,7 +10,7 @@ public class Zson {
 	
 	private String json;
 	
-	private ZsonResult zResult;
+	private ZsonResultImpl zResult;
 	
 	private ZsonResultInfo zResultInfo;
 	
@@ -178,11 +178,11 @@ public class Zson {
 			}else if(element.matches("\\-\\d+")){
 				return Long.valueOf(element);
 			}else if(element.matches("\\d+\\.\\d+")){
-				return Double.valueOf(element);
+				return this.getBigDecimalValue(element);
 			}else if(element.matches("\\-\\d+\\.\\d+")){
-				return Double.valueOf(element);
+				return this.getBigDecimalValue(element);
 			}else if(this.isBigDecimal(element)){
-				return Double.valueOf(this.getBigDecimal(element));
+				return this.getBigDecimalValue(element);
 			}else if(element.toLowerCase().matches("null")){
 				return null;
 			}else if(element.toLowerCase().matches("true")){
@@ -334,7 +334,7 @@ public class Zson {
 			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 		}
 		ZsonInfo zinfo = new ZsonInfo();
-		zResult = new ZsonResult();
+		zResult = new ZsonResultImpl();
 		zResultInfo = zResult.getzResultInfo();
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < chars.length; i++) {
@@ -389,9 +389,14 @@ public class Zson {
 		return true;
 	}
 	
-	private String getBigDecimal(String math){
+	public String getBigDecimal(String math){
 		BigDecimal bd = new BigDecimal(math);
 		return bd.toPlainString();
+	}
+	
+	private BigDecimal getBigDecimalValue(String math){
+		BigDecimal bd = new BigDecimal(math);
+		return bd;
 	}
 	
 }
