@@ -23,6 +23,10 @@ public class ZsonPath {
 		this.path = path;
 	}
 	
+	public boolean checkPath(String path){
+		return path.matches("(/[^/]+)+");
+	}
+	
 	private boolean checkPath(){
 		return path.matches("(/[^/]+)+");
 	}

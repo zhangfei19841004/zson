@@ -17,4 +17,16 @@ public interface ZsonResult {
 	
 	public String toJsonString(Object obj);
 	
+	public String getString(String path);
+	
+	public int getInteger(String path);
+	
+	public long getLong(String path);
+	
+	public double getDouble(String path);
+	
+	public float getFloat(String path);
+	
+	public boolean getBoolean(String path);
+	
 }

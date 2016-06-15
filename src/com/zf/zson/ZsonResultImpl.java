@@ -1,5 +1,6 @@
 package com.zf.zson;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -223,21 +224,29 @@ public class ZsonResultImpl implements ZsonResult{
 	
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> getMap(String path){
-		Object obj = this.getObject(path);
-		if(obj instanceof Map){
-			return (Map<String, Object>) obj;
+		if(zPath.checkPath(path)){
+			Object obj = this.getObject(path);
+			if(obj instanceof Map){
+				return (Map<String, Object>) obj;
+			}else{
+				throw new RuntimeException(obj.getClass().toString()+" can not cast to map!");
+			}
 		}else{
-			throw new RuntimeException(obj.getClass().toString()+" can not cast to map!");
+			throw new RuntimeException("should be absolute path when used getMap.");
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
 	public List<Object> getList(String path){
-		Object obj = this.getObject(path);
-		if(obj instanceof List){
-			return (List<Object>) obj;
+		if(zPath.checkPath(path)){
+			Object obj = this.getObject(path);
+			if(obj instanceof List){
+				return (List<Object>) obj;
+			}else{
+				throw new RuntimeException(obj.getClass().toString()+" can not cast to list!");
+			}
 		}else{
-			throw new RuntimeException(obj.getClass().toString()+" can not cast to list!");
+			throw new RuntimeException("should be absolute path when used getList.");
 		}
 	}
 	
@@ -353,24 +362,6 @@ public class ZsonResultImpl implements ZsonResult{
 		return sb.toString();
 	}
 	
-//	private int compareKey(String key1, String key2){
-//		String[] keys1 = key1.split("\\.");
-//		String[] keys2 = key2.split("\\.");
-//		if(keys1.length<keys2.length){
-//			return -1;
-//		}else if(keys1.length>keys2.length){
-//			return 1;
-//		}
-//		for (int i = 0; i < keys1.length; i++) {
-//			if(Integer.valueOf(keys1[i])>Integer.valueOf(keys2[i])){
-//				return 1;
-//			}else if(Integer.valueOf(keys1[i])<Integer.valueOf(keys2[i])){
-//				return -1;
-//			}
-//		}
-//		return 0;
-//	}
-	
 	private int compareKey(String key1, String key2){
 		if(key2.indexOf(key1)==0){
 			return -1;
@@ -378,23 +369,66 @@ public class ZsonResultImpl implements ZsonResult{
 			return 1;
 		}
 	}
-	
-	public static void main(String[] args) {
-		ZsonResultImpl zr = new ZsonResultImpl();
-		Map<String,Object> map1 = new HashMap<String,Object>();
-		map1.put("a", "a");
-		map1.put("b", 1);
-		map1.put("c", null);
-		Map<String,Object> map2 = new HashMap<String,Object>();
-		map2.put("a", "a");
-		map1.put("d", map2);
-		map1.put("e", new HashMap<String,Object>());
-		List<Object> list = new ArrayList<Object>(); 
-		list.add("1");
-		list.add(3);
-		list.add(map2);
-		list.add(map1);
-		System.out.println(zr.toJsonString(list));
+
+	@Override
+	public int getInteger(String path) {
+		Object obj = this.getValue(path);
+		if(obj instanceof Long){
+			return new Long((Long)obj).intValue();
+		}else{
+			throw new RuntimeException("can not get int with path: "+path);
+		}
+	}
+
+	@Override
+	public long getLong(String path) {
+		Object obj = this.getValue(path);
+		if(obj instanceof Long){
+			return (Long) obj;
+		}else{
+			throw new RuntimeException("can not get long with path: "+path);
+		}
+	}
+
+	@Override
+	public double getDouble(String path) {
+		Object obj = this.getValue(path);
+		if(obj instanceof BigDecimal){
+			BigDecimal bigDecimal = (BigDecimal)obj;
+			return bigDecimal.doubleValue();
+		}else{
+			throw new RuntimeException("can not get double with path: "+path);
+		}
+	}
+
+	@Override
+	public float getFloat(String path) {
+		Object obj = this.getValue(path);
+		if(obj instanceof BigDecimal){
+			return ((BigDecimal)obj).floatValue();
+		}else{
+			throw new RuntimeException("can not get float with path: "+path);
+		}
+	}
+
+	@Override
+	public boolean getBoolean(String path) {
+		Object obj = this.getValue(path);
+		if(obj instanceof Boolean){
+			return (Boolean)obj;
+		}else{
+			throw new RuntimeException("can not get boolean with path: "+path);
+		}
+	}
+
+	@Override
+	public String getString(String path) {
+		Object obj = this.getValue(path);
+		if(obj instanceof String){
+			return (String)obj;
+		}else{
+			throw new RuntimeException("can not get String with path: "+path);
+		}
 	}
 	
 }
