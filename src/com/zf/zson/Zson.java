@@ -15,13 +15,21 @@ public class Zson {
 		this.json = json;
 	}
 	
-	//用这种方式是线程不安全的，不建议使用
+	/**
+	 * @author zhangfei
+	 * @return ZsonResult
+	 * 用这种方式是线程不安全的，不建议使用
+	 */
 	public ZsonResult parseJson(){
 		ZsonParse zp = new ZsonParse(json);
 		return zp.fromJson();
 	}
 	
-	//线程安全
+	/**
+	 * @author zhangfei
+	 * @return ZsonResult
+	 * 用这种方式是线程安全的，建议使用
+	 */
 	public ZsonResult parseJson(String json){
 		ZsonParse zp = new ZsonParse(json);
 		return zp.fromJson();
