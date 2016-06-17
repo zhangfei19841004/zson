@@ -159,3 +159,30 @@ zr.getValues("/a//*[0]"));//输出[a]
 zr.getValues("//*[1]"));//输出[2]
 说明:相对路径所得出来的值只显示非MAP或LIST的值，如果是MAP或LIST，则会被忽略！
 ```
+
+####2016年6月16日更新日志
+
+```
+更加丰富的API：
+String s1 = "[{ \"firstName\": \"Eric\", \"lastName\": \"Clapton\", \"instrument\": \"guitar\" },{ \"firstName\": \"Sergei\", \"lastName\": \"Rachmaninoff\", \"instrument\": \"piano\" }] ";
+String s2 = "[0,1,2,3.14,4.00,\"3\",true,\"\"]";
+String s3 = "{\"a\":[\"a1\"],\"cb\":{\"a\":1},\"d\":[\"a\",{\"a\":[1,20]},{\"a\":2},\"\"],\"e\":\"b\"}";
+Zson z = new Zson();
+ZsonResult zr1 = z.parseJson(s1);
+System.out.println(zr1.getValue("/*[1]/firstName"));
+System.out.println(zr1.getMap("/*[1]"));
+
+ZsonResult zr2 = z.parseJson(s2);
+System.out.println(zr2.getInteger("/*[1]"));
+System.out.println(zr2.getLong("/*[2]"));
+System.out.println(zr2.getDouble("/*[3]"));
+System.out.println(zr2.getFloat("/*[4]"));
+System.out.println(zr2.getString("/*[5]"));
+System.out.println(zr2.getBoolean("/*[6]"));
+
+ZsonResult zr3 = z.parseJson(s3);
+System.out.println(zr3.getValues("//*[0]"));
+System.out.println(zr3.getValues("//*[1]"));
+System.out.println(zr3.getList("/a"));
+System.out.println(zr3.getMap("/cb"));
+```
