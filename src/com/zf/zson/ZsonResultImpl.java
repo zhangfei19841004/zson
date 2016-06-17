@@ -224,29 +224,21 @@ public class ZsonResultImpl implements ZsonResult{
 	
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> getMap(String path){
-		if(zPath.checkPath(path)){
-			Object obj = this.getObject(path);
-			if(obj instanceof Map){
-				return (Map<String, Object>) obj;
-			}else{
-				throw new RuntimeException(obj.getClass().toString()+" can not cast to map!");
-			}
+		Object obj = this.getObject(path);
+		if(obj instanceof Map){
+			return (Map<String, Object>) obj;
 		}else{
-			throw new RuntimeException("should be absolute path when used getMap.");
+			throw new RuntimeException(obj.getClass().toString()+" can not cast to map!");
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
 	public List<Object> getList(String path){
-		if(zPath.checkPath(path)){
-			Object obj = this.getObject(path);
-			if(obj instanceof List){
-				return (List<Object>) obj;
-			}else{
-				throw new RuntimeException(obj.getClass().toString()+" can not cast to list!");
-			}
+		Object obj = this.getObject(path);
+		if(obj instanceof List){
+			return (List<Object>) obj;
 		}else{
-			throw new RuntimeException("should be absolute path when used getList.");
+			throw new RuntimeException(obj.getClass().toString()+" can not cast to list!");
 		}
 	}
 	
