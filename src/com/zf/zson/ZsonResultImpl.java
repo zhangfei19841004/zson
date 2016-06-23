@@ -114,6 +114,39 @@ public class ZsonResultImpl implements ZsonResult{
 	}
 	
 	@SuppressWarnings("unchecked")
+	private void removeResultInfo(String path){
+		if(!this.isValid()){
+			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
+		}
+		zPath.setPath(path);
+		List<String> list = zPath.getXpath();
+		String key = ZsonUtils.BEGIN_KEY;
+		Object value = null;
+		int index = 0;
+		for (String k : list) {
+			Map<String, Integer> elementStatus = zResultInfo.getIndex().get(key);
+			Object elementObj = zResultInfo.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
+			if(elementStatus.get(ZsonUtils.TYPE)==0){
+				Map<String, Object> elementMap = (Map<String, Object>) elementObj; 
+				value = elementMap.get(k);
+				if(index==list.size()-1){
+					elementMap.remove(k);
+				}
+			}else{
+				List<Object> elementList = (List<Object>) elementObj; 
+				value = elementList.get(Integer.valueOf(k));
+				if(index==list.size()-1){
+					elementList.remove(k);
+				}
+			}
+			key = this.getElementKey(value);
+			index++;
+		}
+		zResultInfo.getIndex().remove(key);
+		zResultInfo.getLevel().remove(key);
+	}
+	
+	@SuppressWarnings("unchecked")
 	private Object getObject(String path){
 		if(!this.isValid()){
 			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
@@ -421,6 +454,19 @@ public class ZsonResultImpl implements ZsonResult{
 		}else{
 			throw new RuntimeException("can not get String with path: "+path);
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Object getResult() {
+		Map<String, Integer> elementStatus = zResultInfo.getIndex().get(ZsonUtils.BEGIN_KEY);
+		Object obj = zResultInfo.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
+		return this.restoreObject((Map<Object, Object>) obj);
+	}
+
+	@Override
+	public void removeValue(String path) {
+		this.removeResultInfo(path);
 	}
 	
 }

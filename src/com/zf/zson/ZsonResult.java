@@ -9,6 +9,8 @@ public interface ZsonResult {
 	
 	public Object getValue(String path);
 	
+	public Object getResult();
+	
 	public List<Object> getValues(String path);
 	
 	public Map<String, Object> getMap(String path);
@@ -29,4 +31,5 @@ public interface ZsonResult {
 	
 	public boolean getBoolean(String path);
 	
+	public void removeValue(String path);
 }

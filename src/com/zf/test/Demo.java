@@ -27,6 +27,10 @@ public class Demo {
 		System.out.println(zr3.getValues("//*[1]"));
 		System.out.println(zr3.getList("/a"));
 		System.out.println(zr3.getMap("/cb"));
+		System.out.println(zr3.toJsonString(zr3.getResult()));
+		zr3.removeValue("/cb");
+		System.out.println(zr3.getResult());
+		System.out.println(zr3.getList("/a"));
 	}
 
 }
