@@ -136,7 +136,8 @@ public class ZsonResultImpl implements ZsonResult{
 				List<Object> elementList = (List<Object>) elementObj; 
 				value = elementList.get(Integer.valueOf(k));
 				if(index==list.size()-1){
-					elementList.remove(k);
+					int vIndex = Integer.valueOf(k);
+					elementList.remove(vIndex);
 				}
 			}
 			key = this.getElementKey(value);

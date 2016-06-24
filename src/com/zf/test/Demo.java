@@ -8,7 +8,7 @@ public class Demo {
 	public static void main(String[] args) {
 		String s1 = "[{ \"firstName\": \"Eric\", \"lastName\": \"Clapton\", \"instrument\": \"guitar\" },{ \"firstName\": \"Sergei\", \"lastName\": \"Rachmaninoff\", \"instrument\": \"piano\" }] ";
 		String s2 = "[0,1,2,3.14,4.00,\"3\",true,\"\"]";
-		String s3 = "{\"a\":[\"a1\"],\"cb\":{\"a\":1},\"d\":[\"a\",{\"a\":[1,20]},{\"a\":2},\"\"],\"e\":\"b\"}";
+		String s3 = "{\"a\":[\"a1\",\"a2\",\"a1\"],\"cb\":{\"a\":1},\"d\":[\"a\",{\"a\":[1,20]},{\"a\":2},\"\"],\"e\":\"b\"}";
 		Zson z = new Zson();
 		ZsonResult zr1 = z.parseJson(s1);
 		System.out.println(zr1.getValue("/*[1]/firstName"));
@@ -28,7 +28,7 @@ public class Demo {
 		System.out.println(zr3.getList("/a"));
 		System.out.println(zr3.getMap("/cb"));
 		System.out.println(zr3.toJsonString(zr3.getResult()));
-		zr3.removeValue("/cb");
+		zr3.removeValue("/a/*[0]");
 		System.out.println(zr3.getResult());
 		System.out.println(zr3.getList("/a"));
 	}
