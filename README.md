@@ -186,3 +186,13 @@ System.out.println(zr3.getValues("//*[1]"));
 System.out.println(zr3.getList("/a"));
 System.out.println(zr3.getMap("/cb"));
 ```
+
+####2016年6月28日更新日志
+```
+增加API：
+removeValue(String path);
+功能：移除JSON串中的某个map,list或值，path为绝对路径
+
+getResult();
+功能：返回解析完的整个数据对象
+```
