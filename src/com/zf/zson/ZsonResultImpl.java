@@ -162,10 +162,17 @@ public class ZsonResultImpl implements ZsonResult{
 			Object elementObj = zResultInfo.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
 			if(elementStatus.get(ZsonUtils.TYPE)==0){
 				Map<String, Object> elementMap = (Map<String, Object>) elementObj; 
+				if(!elementMap.containsKey(k)){
+					throw new RuntimeException("path is not valid!");
+				}
 				value = elementMap.get(k);
 			}else{
 				List<Object> elementList = (List<Object>) elementObj; 
-				value = elementList.get(Integer.valueOf(k));
+				int listIndex = Integer.valueOf(k);
+				if(listIndex > elementList.size()-1){
+					throw new RuntimeException("path is not valid!");
+				}
+				value = elementList.get(listIndex);
 			}
 			key = this.getElementKey(value);
 			index++;
