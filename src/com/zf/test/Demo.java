@@ -31,6 +31,8 @@ public class Demo {
 		zr3.removeValue("/a/*[0]");
 		System.out.println(zr3.getResult());
 		System.out.println(zr3.getList("/a"));
+		zr3.updateValue("/cb/a", 2);
+		System.out.println(zr3.getResult());
 	}
 
 }

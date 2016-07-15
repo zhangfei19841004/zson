@@ -32,4 +32,6 @@ public interface ZsonResult {
 	public boolean getBoolean(String path);
 	
 	public void removeValue(String path);
+	
+	public void updateValue(String path, Object value);
 }

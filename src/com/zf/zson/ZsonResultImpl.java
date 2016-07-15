@@ -476,5 +476,59 @@ public class ZsonResultImpl implements ZsonResult{
 	public void removeValue(String path) {
 		this.removeResultInfo(path);
 	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public void updateValue(String path, Object v) {
+		if(!this.isValid()){
+			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
+		}
+		zPath.setPath(path);
+		List<String> list = zPath.getXpath();
+		String key = ZsonUtils.BEGIN_KEY;
+		Object value = null;
+		int index = 0;
+		Object pValue = null;
+		String lastKey = null;
+		for (String k : list) {
+			Map<String, Integer> elementStatus = zResultInfo.getIndex().get(key);
+			Object elementObj = zResultInfo.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
+			if(elementStatus.get(ZsonUtils.TYPE)==0){
+				Map<String, Object> elementMap = (Map<String, Object>) elementObj; 
+				if(!elementMap.containsKey(k)){
+					throw new RuntimeException("path is not valid!");
+				}
+				value = elementMap.get(k);
+			}else{
+				List<Object> elementList = (List<Object>) elementObj; 
+				int listIndex = Integer.valueOf(k);
+				if(listIndex > elementList.size()-1){
+					throw new RuntimeException("path is not valid!");
+				}
+				value = elementList.get(listIndex);
+			}
+			key = this.getElementKey(value);
+			if(index==list.size()-1){
+				pValue = elementObj;
+				lastKey = k;
+			}
+			index++;
+			if(key==null){
+				break;
+			}
+		}
+		if(index!=list.size()){
+			throw new RuntimeException("path is not valid!");
+		}else{
+			if(value instanceof HashMap || value instanceof ArrayList){
+				throw new RuntimeException("path is not valid!");
+			}
+			if(pValue instanceof HashMap){
+				((HashMap) pValue).put(lastKey, v);
+			}else if(pValue instanceof ArrayList){
+				((ArrayList) pValue).set(Integer.valueOf(lastKey), v);
+			}
+		}
+	}
 	
 }
