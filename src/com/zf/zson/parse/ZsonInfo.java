@@ -1,4 +1,4 @@
-package com.zf.zson;
+package com.zf.zson.parse;
 
 public class ZsonInfo {
 

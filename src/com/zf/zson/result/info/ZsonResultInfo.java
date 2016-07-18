@@ -1,4 +1,4 @@
-package com.zf.zson;
+package com.zf.zson.result.info;
 
 import java.util.ArrayList;
 import java.util.HashMap;

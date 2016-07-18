@@ -1,7 +1,7 @@
 package com.zf.test;
 
 import com.zf.zson.Zson;
-import com.zf.zson.ZsonResult;
+import com.zf.zson.result.ZsonResult;
 
 public class Demo {
 

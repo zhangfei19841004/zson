@@ -1,4 +1,4 @@
-package com.zf.zson;
+package com.zf.zson.result;
 
 import java.util.List;
 import java.util.Map;
