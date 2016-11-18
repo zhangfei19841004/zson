@@ -29,6 +29,7 @@ public class ZsonUtils {
 	public final static String TYPE = "type";
 	public final static String STATUS = "status";
 	public final static String INDEX = "index";
+	public final static String PATH = "path";
 	
 	public final static String BEGIN_KEY = "1";
 	

@@ -48,6 +48,7 @@ public class ZsonParse {
 					}
 				}
 			}
+			this.setElementPath(type, lastUNFIndex, element);
 			if(isFinished){
 				elementStatus.put(ZsonUtils.STATUS, 1);
 			}
@@ -55,6 +56,59 @@ public class ZsonParse {
 			zResultInfo.setValid(false);
 			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void setElementPath(int type, int index, String element){
+		if(type==1){
+			List<String> pathObj = (List<String>) zResultInfo.getPath().get(index);
+			String path = this.getParentPath(zResultInfo.getLevel().get(index))+"/*["+pathObj.size()+"]";
+			pathObj.add(path);
+		}else{
+			Map<String, String> pathObj = (Map<String, String>) zResultInfo.getPath().get(index);
+			String path = this.getParentPath(zResultInfo.getLevel().get(index))+"/"+this.getElementInstance(element).toString();
+			pathObj.put(this.getElementInstance(element).toString(), path);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private String getParentPath(String key){
+		if(ZsonUtils.BEGIN_KEY.equals(key)){
+			return "";
+		}
+		String pKey = key.substring(0, key.lastIndexOf('.'));
+		Map<String, Integer> pIndexInfo = this.getIndexInfoByKey(pKey);
+		int pType = pIndexInfo.get(ZsonUtils.TYPE);
+		int pIndex = pIndexInfo.get(ZsonUtils.INDEX);
+		if(pType==0){
+			Map<String,Object> pElement = (Map<String, Object>) zResultInfo.getCollections().get(pIndexInfo.get(ZsonUtils.INDEX));
+			for (String k : pElement.keySet()) {
+				if(pElement.get(k) instanceof HashMap){
+					if(key.equals(((Map<String,String>)pElement.get(k)).get(ZsonUtils.LINK))){
+						return ((Map<String,String>)zResultInfo.getPath().get(pIndex)).get(k);
+					}
+				}else{
+					if(key.equals(((List<String>)pElement.get(k)).get(0))){
+						return ((Map<String,String>)zResultInfo.getPath().get(pIndex)).get(k);
+					}
+				}
+			}
+		}else{
+			List<Object> pElement = (List<Object>) zResultInfo.getCollections().get(pIndexInfo.get(ZsonUtils.INDEX));
+			for (int i=0; i<pElement.size();i++) {
+				Object object = pElement.get(i);
+				if(object instanceof HashMap){
+					if(key.equals(((Map<String,String>)object).get(ZsonUtils.LINK))){
+						return ((List<String>)zResultInfo.getPath().get(pIndex)).get(i);
+					}
+				}else if(object instanceof ArrayList){
+					if(key.equals(((List<String>)object).get(0))){
+						return ((List<String>)zResultInfo.getPath().get(pIndex)).get(i);
+					}
+				}
+			}
+		}
+		throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 	}
 	
 	private void setLatestUNFinishedToFinished(){
@@ -68,7 +122,7 @@ public class ZsonParse {
 		}
 	}
 	
-	private Map<String, Integer> getElementByKey(String key){
+	private Map<String, Integer> getIndexInfoByKey(String key){
 		if(zResultInfo.getIndex().containsKey(key)){
 			return zResultInfo.getIndex().get(key);
 		}else{
@@ -81,7 +135,7 @@ public class ZsonParse {
 	private void addToParent(String element, boolean isMap, String key){
 		try{
 			String pKey = key.substring(0, key.lastIndexOf('.'));
-			Map<String, Integer> pElement = this.getElementByKey(pKey);
+			Map<String, Integer> pElement = this.getIndexInfoByKey(pKey);
 			if(isMap && pElement.get(ZsonUtils.TYPE)==1){
 				zResultInfo.setValid(false);
 				throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
@@ -97,17 +151,21 @@ public class ZsonParse {
 				temp.add(key);
 				elementList.add(temp);
 			}
+			this.setElementPath(pElement.get(ZsonUtils.TYPE), this.getIndexInfoByKey(pKey).get(ZsonUtils.INDEX), element);
 		}catch(Exception e){
 			zResultInfo.setValid(false);
 			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 		}
 	}
 	
-	private String addToCollections(int type){
+	private String addZsonResultInfo(int type){
+		Object pathObj = null;
 		if(type==0){
 			zResultInfo.getCollections().add(new HashMap<String, Object>());
+			pathObj = new HashMap<String, Object>();
 		}else if(type==1){
 			zResultInfo.getCollections().add(new ArrayList<Object>());
+			pathObj = new ArrayList<Object>();
 		}
 		int status = 0;
 		int index = 0;
@@ -118,6 +176,7 @@ public class ZsonParse {
 			key = this.generateIndexKey(zResultInfo.getLevel().get(latestIndex));
 		}
 		zResultInfo.getLevel().add(key);
+		zResultInfo.getPath().add(pathObj);
 		Map<String, Integer> objMap = new HashMap<String, Integer>();
 		objMap.put(ZsonUtils.TYPE, type);
 		objMap.put(ZsonUtils.STATUS, status);
@@ -219,7 +278,7 @@ public class ZsonParse {
 	}
 	
 	private void handleListBegin(ZsonInfo zinfo){
-		String key = this.addToCollections(1);
+		String key = this.addZsonResultInfo(1);
 		if(!ZsonUtils.BEGIN_KEY.equals(key)){
 			this.addToParent(zinfo.getElement(), zinfo.isMap(), key);
 			zinfo.setElement(null);
@@ -229,7 +288,7 @@ public class ZsonParse {
 	}
 	
 	private void handleMapBegin(ZsonInfo zinfo){
-		String key = this.addToCollections(0);
+		String key = this.addZsonResultInfo(0);
 		if(!ZsonUtils.BEGIN_KEY.equals(key)){
 			this.addToParent(zinfo.getElement(), zinfo.isMap(), key);
 			zinfo.setElement(null);

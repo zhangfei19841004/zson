@@ -1,15 +1,23 @@
-package com.zf.zson.result;
+package com.zf.zson.result1;
 
 import java.util.List;
+import java.util.Map;
 
-
-public interface ZsonResult{
+public interface ZsonResult {
 	
 	public boolean isValid();
 	
 	public Object getValue(String path);
 	
+	public Object getResult();
+	
 	public List<Object> getValues(String path);
+	
+	public Map<String, Object> getMap(String path);
+	
+	public List<Object> getList(String path);
+	
+	public String toJsonString(Object obj);
 	
 	public String getString(String path);
 	
@@ -23,6 +31,7 @@ public interface ZsonResult{
 	
 	public boolean getBoolean(String path);
 	
-	public ZsonResult addValue(String path, String json);
+	public void removeValue(String path);
 	
+	public void updateValue(String path, Object value);
 }

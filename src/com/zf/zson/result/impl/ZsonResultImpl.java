@@ -3,17 +3,15 @@ package com.zf.zson.result.impl;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import com.zf.zson.ZsonUtils;
-import com.zf.zson.path.ZsonPathInfo;
+import com.zf.zson.parse.ZsonParse;
 import com.zf.zson.result.ZsonResult;
 import com.zf.zson.result.ZsonResultAbstract;
 
-public class ZsonResultImpl extends ZsonResultAbstract implements ZsonResult{
+public class ZsonResultImpl extends ZsonResultAbstract{
 	
 	public boolean isValid(){
 		if(!zResultInfo.isValid() || zResultInfo.getCollections().size()==0){
@@ -38,93 +36,65 @@ public class ZsonResultImpl extends ZsonResultAbstract implements ZsonResult{
 		}
 	}
 	
-	public Object getValue(String path){
-		Object obj = this.resultHandle(path, false, true, false, null);
-		if(obj instanceof Map || obj instanceof List){
-			return this.toJsonString(obj);
-		}else{
-			return obj;
-		}
-	}
-	
-	private List<Object> getObjects(String path){
+	@SuppressWarnings("unchecked")
+	private List<Object> resultHandle(String path, boolean isSingleResult){
 		this.checkValid();
 		zPath.setPath(path);
-		List<ZsonPathInfo> list = zPath.getRelativePath();
-		int index = 0;
-		for (ZsonPathInfo pathInfo : list) {
-			List<Object> resultList = zResultInfo.getResults();
-			int len = resultList.size();
-			if(index>0 && len==0){
-				break;
-			}
-			if(resultList.size()==0){
-				String key = ZsonUtils.BEGIN_KEY;
-				if(pathInfo.getPathKeyIsRelative()){
-					this.getRelativeObjectsByKey(key, pathInfo);
-				}else{
-					this.getObjectsByKey(key, pathInfo);
+		if(!zPath.checkPath()){
+			throw new RuntimeException("path is not valid!");
+		}
+		List<Object> result = new ArrayList<Object>();
+		List<String> levels = zResultInfo.getLevel();
+		for (int i = 0; i < levels.size(); i++) {
+			Object pathObj = zResultInfo.getPath().get(i);
+			if(pathObj instanceof List){
+				List<String> pathList = (List<String>) pathObj;
+				for (int j = 0; j < pathList.size(); j++) {
+					if(zPath.isMatchPath(pathList.get(j))){
+						Object resultObj = zResultInfo.getCollections().get(i);
+						if(!(resultObj instanceof List)){
+							throw new RuntimeException("parse json error!");
+						}
+						List<Object> resultList = (List<Object>) resultObj;
+						Object value = resultList.get(j);
+						result.add(this.getCollectionsObjectAndRestore(value));
+						if(isSingleResult){
+							return result;
+						}
+					}
 				}
-			}else{
-				Iterator<Object> it = resultList.iterator();
-				while(it.hasNext()) {
-					Object element = it.next();
-					if(element instanceof HashMap || element instanceof ArrayList){
-						String key = this.getElementKey(element);
-						if(pathInfo.getPathKeyIsRelative()){
-							this.getRelativeObjectsByKey(key, pathInfo);
-						}else{
-							this.getObjectsByKey(key, pathInfo);
+			}else if(pathObj instanceof Map){
+				Map<String, String> pathMap = (Map<String, String>) pathObj;
+				for (String k : pathMap.keySet()) {
+					if(zPath.isMatchPath(pathMap.get(k))){
+						Object resultObj = zResultInfo.getCollections().get(i);
+						if(!(resultObj instanceof Map)){
+							throw new RuntimeException("parse json error!");
+						}
+						Map<String, Object> resultMap = (Map<String, Object>) resultObj;
+						Object value = resultMap.get(k);
+						result.add(this.getCollectionsObjectAndRestore(value));
+						if(isSingleResult){
+							return result;
 						}
 					}
 				}
 			}
-			this.convertResult();
-			index++;
 		}
-		//去掉MAP或LIST，只保留非MAP或LIST的结果
-		Iterator<Object> it = zResultInfo.getResults().iterator();
-		while(it.hasNext()){
-			Object element = it.next();
-			if(element instanceof Map || element instanceof List){
-				it.remove();
-			}
+		if(isSingleResult){
+			throw new RuntimeException("path is not valid!");
 		}
-		return zResultInfo.getResults();
+		return result;
 	}
 	
-	private void convertResult(){
-		zResultInfo.setResults(zResultInfo.getResultsTemp());
-		zResultInfo.setResultsTemp(new ArrayList<Object>());
+	public Object getValue(String path){
+		return this.resultHandle(path, true).get(0);
 	}
 	
 	public List<Object> getValues(String path){
-		zResultInfo.getResults().clear();
-		zResultInfo.getResultsTemp().clear();
-		zResultInfo.getResultLevel().clear();
-		return this.getObjects(path);
+		return this.resultHandle(path, false);
 	}
-	
-	@SuppressWarnings("unchecked")
-	public Map<String, Object> getMap(String path){
-		Object obj = this.resultHandle(path, false, true, false, null);
-		if(obj instanceof Map){
-			return (Map<String, Object>) obj;
-		}else{
-			throw new RuntimeException(obj.getClass().toString()+" can not cast to map!");
-		}
-	}
-	
-	@SuppressWarnings("unchecked")
-	public List<Object> getList(String path){
-		Object obj = this.resultHandle(path, false, true, false, null);
-		if(obj instanceof List){
-			return (List<Object>) obj;
-		}else{
-			throw new RuntimeException(obj.getClass().toString()+" can not cast to list!");
-		}
-	}
-	
+
 	@Override
 	public int getInteger(String path) {
 		Object obj = this.getValue(path);
@@ -185,27 +155,74 @@ public class ZsonResultImpl extends ZsonResultAbstract implements ZsonResult{
 			throw new RuntimeException("can not get String with path: "+path);
 		}
 	}
-
+	
 	@SuppressWarnings("unchecked")
-	@Override
-	public Object getResult() {
-		Map<String, Integer> elementStatus = zResultInfo.getIndex().get(ZsonUtils.BEGIN_KEY);
-		Object obj = zResultInfo.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
-		return zsonResultRestore.restoreObject((Map<Object, Object>) obj);
+	private List<Object> addResult(String path, int index, String json){
+		this.checkValid();
+		zPath.setPath(path);
+		if(!zPath.checkPath()){
+			throw new RuntimeException("path is not valid!");
+		}
+		List<String> levels = zResultInfo.getLevel();
+		for (int i = 0; i < levels.size(); i++) {
+			Object pathObj = zResultInfo.getPath().get(i);
+			if(pathObj instanceof List){
+				List<String> pathList = (List<String>) pathObj;
+				for (int j = 0; j < pathList.size(); j++) {
+					if(zPath.isMatchPath(pathList.get(j))){
+						Object resultObj = zResultInfo.getCollections().get(i);
+						if(!(resultObj instanceof List)){
+							throw new RuntimeException("parse json error!");
+						}
+						List<Object> resultList = (List<Object>) resultObj;
+						Object value = resultList.get(j);
+						if(value instanceof Map || value instanceof List){
+							String key = this.getElementKey(value);
+							Map<String, Integer> elementStatus = zResultInfo.getIndex().get(key);
+							Object elementObj = zResultInfo.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
+							Object restoreObj = zsonResultRestore.restoreObject(elementObj);
+							if(restoreObj instanceof List){
+								List<Object> restoreList = (List<Object>) restoreObj;
+								restoreList.set(index, ((ZsonResultImpl)this.parseJsonToZson(json)).getResultByKey(ZsonUtils.BEGIN_KEY));
+							}
+						}
+					}
+				}
+			}else if(pathObj instanceof Map){
+				Map<String, String> pathMap = (Map<String, String>) pathObj;
+				for (String k : pathMap.keySet()) {
+					if(zPath.isMatchPath(pathMap.get(k))){
+						Object resultObj = zResultInfo.getCollections().get(i);
+						if(!(resultObj instanceof Map)){
+							throw new RuntimeException("parse json error!");
+						}
+						Map<String, Object> resultMap = (Map<String, Object>) resultObj;
+						Object value = resultMap.get(k);
+						result.add(this.getCollectionsObjectAndRestore(value));
+						if(isSingleResult){
+							return result;
+						}
+					}
+				}
+			}
+		}
+		if(isSingleResult){
+			throw new RuntimeException("path is not valid!");
+		}
+		return result;
+	}
+	
+	private void addValue(String path, int index, String json){
+		ZsonParse zp = new ZsonParse(json);
+		ZsonResult zr = zp.fromJson();
+		zResultInfo.
+		System.out.println(zr);
 	}
 
 	@Override
-	public void removeValue(String path) {
-		this.resultHandle(path,true, false, false, null);
+	public ZsonResult addValue(String path, String json) {
+		this.addValue(path, 0, json);
+		return null;
 	}
-
-	@Override
-	public void updateValue(String path, Object v) {
-		this.resultHandle(path,false, false, true, v);
-	}
-
-	@Override
-	public String toJsonString(Object obj) {
-		return zsonResultToString.toJsonString(obj);
-	}
+	
 }

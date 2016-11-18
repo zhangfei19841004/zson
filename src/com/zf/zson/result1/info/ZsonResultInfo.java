@@ -1,4 +1,4 @@
-package com.zf.zson.result.info;
+package com.zf.zson.result1.info;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +40,18 @@ public class ZsonResultInfo {
 	 * 存放JSON的path
 	 */
 	private List<Object> path = new ArrayList<Object>();
+	
+	/**
+	 * 解析相对路径时，存放collections中的数据，比如具体的值，key={link=1.1.1},[1.1.2].
+	 */
+	private List<Object> results = new ArrayList<Object>();
+	
+	/**
+	 * 由于层级解析时，会把上层的删除掉，用iterator删除，为了在删除时添加，创建临时结果表。
+	 */
+	private List<Object> resultsTemp = new ArrayList<Object>();
+	
+	private List<String> resultLevel = new ArrayList<String>();
 
 	public boolean isValid() {
 		return valid;
@@ -79,6 +91,30 @@ public class ZsonResultInfo {
 
 	public void setLevel(List<String> level) {
 		this.level = level;
+	}
+
+	public List<Object> getResults() {
+		return results;
+	}
+
+	public void setResults(List<Object> results) {
+		this.results = results;
+	}
+
+	public List<String> getResultLevel() {
+		return resultLevel;
+	}
+
+	public void setResultLevel(List<String> resultLevel) {
+		this.resultLevel = resultLevel;
+	}
+
+	public List<Object> getResultsTemp() {
+		return resultsTemp;
+	}
+
+	public void setResultsTemp(List<Object> resultsTemp) {
+		this.resultsTemp = resultsTemp;
 	}
 
 	public List<Object> getPath() {
