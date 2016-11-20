@@ -11,7 +11,7 @@ public class Demo {
 		String s3 = "{\"a\":[\"a1\",\"a2\",\"a1\"],\"cb\":{\"a\":1},\"d\":[\"a\",{\"a\":[1,20]},{\"a\":2},\"\"],\"e\":\"b\"}";
 		ZsonResult zr1 = ZSON.parseJson(s1);
 		System.out.println(zr1.getValue("/*[1]/lastName"));
-		System.out.println(zr1.getValues("//lastName"));
+		System.out.println(zr1.getValues("/*[1]/lastName"));
 //		System.out.println(zr1.getMap("/*[1]"));
 //		
 //		ZsonResult zr2 = z.parseJson(s2);

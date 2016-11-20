@@ -37,11 +37,14 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void resultHandle(ZsonAction za, String path, boolean isSingleResult, String actionJson){
+	private void resultHandle(ZsonAction za, String path, boolean isSingleResult){
 		this.checkValid();
 		zPath.setPath(path);
 		if(!zPath.checkPath()){
 			throw new RuntimeException("path is not valid!");
+		}
+		if(zPath.checkAbsolutePath()){
+			isSingleResult = true;
 		}
 		List<String> levels = zResultInfo.getLevel();
 		for (int i = 0; i < levels.size(); i++) {
@@ -56,7 +59,7 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 						}
 						List<Object> resultList = (List<Object>) resultObj;
 						Object value = resultList.get(j);
-						za.process(this, value, actionJson);
+						za.process(this, value);
 						i += za.offset(this, value);
 						if(isSingleResult){
 							return;
@@ -73,7 +76,7 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 						}
 						Map<String, Object> resultMap = (Map<String, Object>) resultObj;
 						Object value = resultMap.get(k);
-						za.process(this, value, actionJson);
+						za.process(this, value);
 						i += za.offset(this, value);
 						if(isSingleResult){
 							return;
@@ -89,13 +92,13 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 	
 	public Object getValue(String path){
 		ZsonRetrieve zre = new ZsonRetrieve();
-		this.resultHandle(zre, path, true, null);
+		this.resultHandle(zre, path, true);
 		return zre.getResult().get(0);
 	}
 	
 	public List<Object> getValues(String path){
 		ZsonRetrieve zre = new ZsonRetrieve();
-		this.resultHandle(zre, path, false, null);
+		this.resultHandle(zre, path, false);
 		return zre.getResult();
 	}
 
