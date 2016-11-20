@@ -1,13 +1,13 @@
 package com.zf.zson.result.impl;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import com.zf.zson.ZsonUtils;
 import com.zf.zson.parse.ZsonParse;
+import com.zf.zson.result.ZsonAction;
 import com.zf.zson.result.ZsonResult;
 import com.zf.zson.result.ZsonResultAbstract;
 
@@ -37,13 +37,12 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 	}
 	
 	@SuppressWarnings("unchecked")
-	private List<Object> resultHandle(String path, boolean isSingleResult){
+	private void resultHandle(ZsonAction za, String path, boolean isSingleResult, String actionJson){
 		this.checkValid();
 		zPath.setPath(path);
 		if(!zPath.checkPath()){
 			throw new RuntimeException("path is not valid!");
 		}
-		List<Object> result = new ArrayList<Object>();
 		List<String> levels = zResultInfo.getLevel();
 		for (int i = 0; i < levels.size(); i++) {
 			Object pathObj = zResultInfo.getPath().get(i);
@@ -57,9 +56,10 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 						}
 						List<Object> resultList = (List<Object>) resultObj;
 						Object value = resultList.get(j);
-						result.add(this.getCollectionsObjectAndRestore(value));
+						za.process(this, value, actionJson);
+						i += za.offset(this, value);
 						if(isSingleResult){
-							return result;
+							return;
 						}
 					}
 				}
@@ -73,9 +73,10 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 						}
 						Map<String, Object> resultMap = (Map<String, Object>) resultObj;
 						Object value = resultMap.get(k);
-						result.add(this.getCollectionsObjectAndRestore(value));
+						za.process(this, value, actionJson);
+						i += za.offset(this, value);
 						if(isSingleResult){
-							return result;
+							return;
 						}
 					}
 				}
@@ -84,15 +85,18 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 		if(isSingleResult){
 			throw new RuntimeException("path is not valid!");
 		}
-		return result;
 	}
 	
 	public Object getValue(String path){
-		return this.resultHandle(path, true).get(0);
+		ZsonRetrieve zre = new ZsonRetrieve();
+		this.resultHandle(zre, path, true, null);
+		return zre.getResult().get(0);
 	}
 	
 	public List<Object> getValues(String path){
-		return this.resultHandle(path, false);
+		ZsonRetrieve zre = new ZsonRetrieve();
+		this.resultHandle(zre, path, false, null);
+		return zre.getResult();
 	}
 
 	@Override
@@ -156,67 +160,11 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	private List<Object> addResult(String path, int index, String json){
-		this.checkValid();
-		zPath.setPath(path);
-		if(!zPath.checkPath()){
-			throw new RuntimeException("path is not valid!");
-		}
-		List<String> levels = zResultInfo.getLevel();
-		for (int i = 0; i < levels.size(); i++) {
-			Object pathObj = zResultInfo.getPath().get(i);
-			if(pathObj instanceof List){
-				List<String> pathList = (List<String>) pathObj;
-				for (int j = 0; j < pathList.size(); j++) {
-					if(zPath.isMatchPath(pathList.get(j))){
-						Object resultObj = zResultInfo.getCollections().get(i);
-						if(!(resultObj instanceof List)){
-							throw new RuntimeException("parse json error!");
-						}
-						List<Object> resultList = (List<Object>) resultObj;
-						Object value = resultList.get(j);
-						if(value instanceof Map || value instanceof List){
-							String key = this.getElementKey(value);
-							Map<String, Integer> elementStatus = zResultInfo.getIndex().get(key);
-							Object elementObj = zResultInfo.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
-							Object restoreObj = zsonResultRestore.restoreObject(elementObj);
-							if(restoreObj instanceof List){
-								List<Object> restoreList = (List<Object>) restoreObj;
-								restoreList.set(index, ((ZsonResultImpl)this.parseJsonToZson(json)).getResultByKey(ZsonUtils.BEGIN_KEY));
-							}
-						}
-					}
-				}
-			}else if(pathObj instanceof Map){
-				Map<String, String> pathMap = (Map<String, String>) pathObj;
-				for (String k : pathMap.keySet()) {
-					if(zPath.isMatchPath(pathMap.get(k))){
-						Object resultObj = zResultInfo.getCollections().get(i);
-						if(!(resultObj instanceof Map)){
-							throw new RuntimeException("parse json error!");
-						}
-						Map<String, Object> resultMap = (Map<String, Object>) resultObj;
-						Object value = resultMap.get(k);
-						result.add(this.getCollectionsObjectAndRestore(value));
-						if(isSingleResult){
-							return result;
-						}
-					}
-				}
-			}
-		}
-		if(isSingleResult){
-			throw new RuntimeException("path is not valid!");
-		}
-		return result;
-	}
-	
 	private void addValue(String path, int index, String json){
 		ZsonParse zp = new ZsonParse(json);
 		ZsonResult zr = zp.fromJson();
-		zResultInfo.
-		System.out.println(zr);
+		//zResultInfo.
+		//System.out.println(zr);
 	}
 
 	@Override

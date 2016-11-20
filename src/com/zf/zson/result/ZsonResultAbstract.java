@@ -67,13 +67,13 @@ public abstract class ZsonResultAbstract implements ZsonResult{
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected Object getResultByKey(String key) {
+	public Object getResultByKey(String key) {
 		Map<String, Integer> elementStatus = zResultInfo.getIndex().get(key);
 		Object obj = zResultInfo.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
 		return zsonResultRestore.restoreObject((Map<Object, Object>) obj);
 	}
 	
-	protected ZsonResult parseJsonToZson(String json){
+	public ZsonResult parseJsonToZson(String json){
 		ZsonParse zp = new ZsonParse(json);
 		return zp.fromJson();
 	}
