@@ -44,6 +44,8 @@ public class ZsonAdd implements ZsonAction{
 			Object actionValue = zra.getResultByKey(ZsonUtils.BEGIN_KEY);
 			pathList.add(addIndex, actionValue);
 			ZsonResultImpl zrNew = (ZsonResultImpl) zri.parseJsonToZson(ZSON.toJsonString(pathList));
+			this.deleteZsonResultInfoChilrenKey(zri, key);
+			
 		}
 	}
 	
@@ -52,21 +54,31 @@ public class ZsonAdd implements ZsonAction{
 		int index = 0;
 		while(it.hasNext()){
 			String level = it.next();
-			if(level.matches(key.replaceAll("\\.", "\\\\.")+"(\\.\\d+)+")){
+			if(level.matches(key.replaceAll("\\.", "\\\\.")+"(\\.\\d+)*")){
 				it.remove();
+				zri.getzResultInfo().getPath().remove(index);
+				zri.getzResultInfo().getIndex().remove(level);
+				zri.getzResultInfo().getCollections().remove(index);
+				index--;
 			}
 			index++;
-			
 		}
 	}
 	
 	private void replaceZsonResultInfoKey(ZsonResultImpl zrNew, String targetKey){
-		
+		List<String> levels = zrNew.getzResultInfo().getLevel();
+		for (String level : levels) {
+			String newLevel = targetKey+
+		}
 	}
 
 	@Override
 	public int offset(ZsonResult zr, Object value) {
 		return 0;
 	}
-	
+	public static void main(String[] args) {
+		String t = "1.1";
+		String k = "1.2";
+		System.out.println(t+k.substring(1));
+	}
 }
