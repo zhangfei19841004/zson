@@ -45,7 +45,7 @@ public class ZsonAdd implements ZsonAction{
 			pathList.add(addIndex, actionValue);
 			ZsonResultImpl zrNew = (ZsonResultImpl) zri.parseJsonToZson(ZSON.toJsonString(pathList));
 			this.deleteZsonResultInfoChilrenKey(zri, key);
-			
+			System.out.println();
 		}
 	}
 	
@@ -67,8 +67,10 @@ public class ZsonAdd implements ZsonAction{
 	
 	private void replaceZsonResultInfoKey(ZsonResultImpl zrNew, String targetKey){
 		List<String> levels = zrNew.getzResultInfo().getLevel();
-		for (String level : levels) {
-			String newLevel = targetKey+
+		for (int i = 0; i < levels.size(); i++) {
+			String newLevel = targetKey+levels.get(i).substring(1);
+			levels.set(i, newLevel);
+			//zrNew.getzResultInfo().getPath()
 		}
 	}
 
