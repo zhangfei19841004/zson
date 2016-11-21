@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.zf.zson.ZsonUtils;
-import com.zf.zson.parse.ZsonParse;
 import com.zf.zson.result.ZsonAction;
 import com.zf.zson.result.ZsonResult;
 import com.zf.zson.result.ZsonResultAbstract;
@@ -164,15 +163,15 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 	}
 	
 	private void addValue(String path, int index, String json){
-		ZsonParse zp = new ZsonParse(json);
-		ZsonResult zr = zp.fromJson();
-		//zResultInfo.
-		//System.out.println(zr);
+		ZsonAdd add = new ZsonAdd();
+		add.setAddIndex(index);
+		add.setAddJson(json);
+		this.resultHandle(add, path, false);
 	}
 
 	@Override
 	public ZsonResult addValue(String path, String json) {
-		this.addValue(path, 0, json);
+		this.addValue(path, 1, json);
 		return null;
 	}
 	

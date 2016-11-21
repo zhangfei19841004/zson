@@ -33,7 +33,18 @@ public abstract class ZsonResultAbstract implements ZsonResult{
 		return zResultInfo;
 	}
 	
-	
+	public ZsonPath getzPath() {
+		return zPath;
+	}
+
+	public ZsonResultToString getZsonResultToString() {
+		return zsonResultToString;
+	}
+
+	public ZsonResultRestore getZsonResultRestore() {
+		return zsonResultRestore;
+	}
+
 	@SuppressWarnings("unchecked")
 	public String getElementKey(Object value){
 		String key = null;
@@ -66,11 +77,10 @@ public abstract class ZsonResultAbstract implements ZsonResult{
 		return value;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public Object getResultByKey(String key) {
 		Map<String, Integer> elementStatus = zResultInfo.getIndex().get(key);
 		Object obj = zResultInfo.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
-		return zsonResultRestore.restoreObject((Map<Object, Object>) obj);
+		return zsonResultRestore.restoreObject(obj);
 	}
 	
 	public ZsonResult parseJsonToZson(String json){
