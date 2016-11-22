@@ -83,11 +83,11 @@ public class ZsonParse {
 		if(pType==0){
 			Map<String,Object> pElement = (Map<String, Object>) zResultInfo.getCollections().get(pIndexInfo.get(ZsonUtils.INDEX));
 			for (String k : pElement.keySet()) {
-				if(pElement.get(k) instanceof HashMap){
+				if(pElement.get(k) instanceof Map){
 					if(key.equals(((Map<String,String>)pElement.get(k)).get(ZsonUtils.LINK))){
 						return ((Map<String,String>)zResultInfo.getPath().get(pIndex)).get(k);
 					}
-				}else{
+				}else if(pElement.get(k) instanceof List){
 					if(key.equals(((List<String>)pElement.get(k)).get(0))){
 						return ((Map<String,String>)zResultInfo.getPath().get(pIndex)).get(k);
 					}
@@ -97,11 +97,11 @@ public class ZsonParse {
 			List<Object> pElement = (List<Object>) zResultInfo.getCollections().get(pIndexInfo.get(ZsonUtils.INDEX));
 			for (int i=0; i<pElement.size();i++) {
 				Object object = pElement.get(i);
-				if(object instanceof HashMap){
+				if(object instanceof Map){
 					if(key.equals(((Map<String,String>)object).get(ZsonUtils.LINK))){
 						return ((List<String>)zResultInfo.getPath().get(pIndex)).get(i);
 					}
-				}else if(object instanceof ArrayList){
+				}else if(object instanceof List){
 					if(key.equals(((List<String>)object).get(0))){
 						return ((List<String>)zResultInfo.getPath().get(pIndex)).get(i);
 					}
