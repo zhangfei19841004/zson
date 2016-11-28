@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.zf.zson.ZsonUtils;
+import com.zf.zson.object.ZsonObject;
 import com.zf.zson.result.ZsonAction;
 import com.zf.zson.result.ZsonResult;
 import com.zf.zson.result.ZsonResultAbstract;
@@ -35,47 +36,53 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	private void resultHandle(ZsonAction za, String path, boolean isSingleResult){
+	private void beforeHandle(String path){
 		this.checkValid();
 		zPath.setPath(path);
 		if(!zPath.checkPath()){
 			throw new RuntimeException("path is not valid!");
 		}
+	}
+	
+	private void resultHandle(ZsonAction za, String path, boolean isSingleResult){
+		this.beforeHandle(path);
 		if(zPath.checkAbsolutePath()){
 			isSingleResult = true;
 		}
 		List<String> levels = zResultInfo.getLevel();
 		for (int i = 0; i < levels.size(); i++) {
-			Object pathObj = zResultInfo.getPath().get(i);
-			if(pathObj instanceof List){
-				List<String> pathList = (List<String>) pathObj;
+			ZsonObject<String> pathObject = new ZsonObject<String>();
+			pathObject.objectConvert(zResultInfo.getPath().get(i));
+			if(pathObject.isList()){
+				List<String> pathList = pathObject.getZsonList();
 				for (int j = 0; j < pathList.size(); j++) {
 					if(zPath.isMatchPath(pathList.get(j))){
-						Object resultObj = zResultInfo.getCollections().get(i);
-						if(!(resultObj instanceof List)){
+						ZsonObject<Object> resultObject = new ZsonObject<Object>();
+						resultObject.objectConvert(zResultInfo.getCollections().get(i));
+						if(!(resultObject.isList())){
 							throw new RuntimeException("parse json error!");
 						}
-						List<Object> resultList = (List<Object>) resultObj;
+						List<Object> resultList = resultObject.getZsonList();
 						Object value = resultList.get(j);
-						za.process(this, value);
+						za.process(this, value, pathList.get(j));
 						i += za.offset(this, value);
 						if(isSingleResult){
 							return;
 						}
 					}
 				}
-			}else if(pathObj instanceof Map){
-				Map<String, String> pathMap = (Map<String, String>) pathObj;
+			}else if(pathObject.isMap()){
+				Map<String, String> pathMap = pathObject.getZsonMap();
 				for (String k : pathMap.keySet()) {
 					if(zPath.isMatchPath(pathMap.get(k))){
-						Object resultObj = zResultInfo.getCollections().get(i);
-						if(!(resultObj instanceof Map)){
+						ZsonObject<Object> resultObject = new ZsonObject<Object>();
+						resultObject.objectConvert(zResultInfo.getCollections().get(i));
+						if(!(resultObject.isMap())){
 							throw new RuntimeException("parse json error!");
 						}
-						Map<String, Object> resultMap = (Map<String, Object>) resultObj;
+						Map<String, Object> resultMap = resultObject.getZsonMap();
 						Object value = resultMap.get(k);
-						za.process(this, value);
+						za.process(this, value, pathMap.get(k));
 						i += za.offset(this, value);
 						if(isSingleResult){
 							return;

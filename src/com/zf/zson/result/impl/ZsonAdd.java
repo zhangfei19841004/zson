@@ -19,6 +19,8 @@ public class ZsonAdd implements ZsonAction{
 	
 	private int addIndex;
 	
+	private List<String> handledPath = new ArrayList<String>();
+	
 	public void setAddJson(String addJson) {
 		this.addJson = addJson;
 	}
@@ -33,7 +35,10 @@ public class ZsonAdd implements ZsonAction{
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void process(ZsonResult zr, Object value) {
+	public void process(ZsonResult zr, Object value, String currentPath) {
+		if(handledPath.contains(currentPath)){
+			return;
+		}
 		ZsonResultImpl zri = (ZsonResultImpl) zr;
 		String key = zri.getElementKey(value);
 		if(key == null){
@@ -49,8 +54,17 @@ public class ZsonAdd implements ZsonAction{
 			ZsonResultImpl zrNew = (ZsonResultImpl) zri.parseJsonToZson(ZSON.toJsonString(pathList));
 			this.deleteZsonResultInfoChilrenKey(zri, key);
 			this.replaceZsonResultInfoKey(zrNew, key, parentPath);
-			System.out.println();
+			this.addNewResultToSourceResult(zri, zrNew);
+			this.recorrectIndex(zri);
 		}
+		System.out.println(ZSON.toJsonString(zri.getResultByKey("1")));
+	}
+	
+	private void addNewResultToSourceResult(ZsonResultImpl source, ZsonResultImpl newResult){
+		source.getzResultInfo().getLevel().addAll(addIndex, newResult.getzResultInfo().getLevel());
+		source.getzResultInfo().getPath().addAll(addIndex, newResult.getzResultInfo().getPath());
+		source.getzResultInfo().getIndex().putAll(newResult.getzResultInfo().getIndex());
+		source.getzResultInfo().getCollections().addAll(addIndex, newResult.getzResultInfo().getCollections());
 	}
 	
 	private void deleteZsonResultInfoChilrenKey(ZsonResultImpl zri, String key){
@@ -83,6 +97,13 @@ public class ZsonAdd implements ZsonAction{
 			this.updateCollections(zrNew.getzResultInfo().getCollections().get(i), targetKey);
 		}
 		zrNew.getzResultInfo().setIndex(newIndex);
+	}
+	
+	private void recorrectIndex(ZsonResultImpl zri){
+		List<String> levels = zri.getzResultInfo().getLevel();
+		for (int i = 0; i < levels.size(); i++) {
+			zri.getzResultInfo().getIndex().get(levels.get(i)).put(ZsonUtils.INDEX, i);
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -191,8 +212,19 @@ public class ZsonAdd implements ZsonAction{
 	}
 	
 	public static void main(String[] args) {
-		String t = "1.1";
-		String k = "1.2";
-		System.out.println(t+k.substring(1));
+		List<String> list = new ArrayList<String>();
+		list.add("a");
+		list.add("b");
+		list.add("c");
+		Iterator<String> it = list.iterator();
+		int index = 0;
+		while(it.hasNext()){
+			String k = it.next();
+			if(index==1){
+				list.add("d");
+			}
+			System.out.println(k);
+			index++;
+		}
 	}
 }

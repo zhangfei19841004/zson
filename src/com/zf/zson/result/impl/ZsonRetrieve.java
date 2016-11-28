@@ -15,7 +15,7 @@ public class ZsonRetrieve implements ZsonAction{
 	}
 
 	@Override
-	public void process(ZsonResult zr, Object value) {
+	public void process(ZsonResult zr, Object value, String currentPath) {
 		ZsonResultImpl zri = (ZsonResultImpl) zr;
 		result.add(zri.getCollectionsObjectAndRestore(value));
 	}
