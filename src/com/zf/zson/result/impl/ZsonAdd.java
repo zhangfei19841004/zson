@@ -42,7 +42,8 @@ public class ZsonAdd implements ZsonAction{
 		ZsonResultImpl zri = (ZsonResultImpl) zr;
 		String key = zri.getElementKey(value);
 		if(key == null){
-			throw new RuntimeException("can not add value to this path: "+zri.getzPath().getPath());
+			//throw new RuntimeException("can not add value to this path: "+zri.getzPath().getPath());
+			return;
 		}
 		String parentPath = this.getParentPath(zri, key);
 		Object pathValue = zri.getResultByKey(key);
@@ -51,6 +52,7 @@ public class ZsonAdd implements ZsonAction{
 			ZsonResultImpl zra = (ZsonResultImpl) zri.parseJsonToZson(addJson);
 			Object actionValue = zra.getResultByKey(ZsonUtils.BEGIN_KEY);
 			pathList.add(addIndex, actionValue);
+			handledPath.add(parentPath+"/["+addIndex+"]");
 			ZsonResultImpl zrNew = (ZsonResultImpl) zri.parseJsonToZson(ZSON.toJsonString(pathList));
 			this.deleteZsonResultInfoChilrenKey(zri, key);
 			this.replaceZsonResultInfoKey(zrNew, key, parentPath);
@@ -91,7 +93,7 @@ public class ZsonAdd implements ZsonAction{
 			String newLevel = targetKey+levels.get(i).substring(1);
 			levels.set(i, newLevel);
 			List<Object> paths = zrNew.getzResultInfo().getPath();
-			this.updatePaths(paths.get(i), parentPath);
+			this.updatePaths(zrNew, paths.get(i), parentPath);
 			Map<String, Map<String, Integer>> index = zrNew.getzResultInfo().getIndex();
 			this.updateIndexs(index, newIndex, key, targetKey);
 			this.updateCollections(zrNew.getzResultInfo().getCollections().get(i), targetKey);
@@ -107,16 +109,24 @@ public class ZsonAdd implements ZsonAction{
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void updatePaths(Object paths, String parentPath){
+	private void updatePaths(ZsonResultImpl zrNew, Object paths, String parentPath){
 		if(paths instanceof Map){
 			Map<String, String> pathMap = (Map<String, String>) paths;
 			for (String k : pathMap.keySet()) {
-				pathMap.put(k, parentPath+pathMap.get(k));
+				String newPath = parentPath+pathMap.get(k);
+				pathMap.put(k, newPath);
+				if(zrNew.getzPath().ischildPath(handledPath.get(handledPath.size()-1), newPath)){
+					handledPath.add(newPath);
+				}
 			}
 		}else if(paths instanceof List){
 			List<String> pathList = (List<String>) paths;
 			for (int i = 0; i < pathList.size(); i++) {
-				pathList.set(i, parentPath+pathList.get(i));
+				String newPath = parentPath+pathList.get(i);
+				pathList.set(i, newPath);
+				if(zrNew.getzPath().ischildPath(handledPath.get(handledPath.size()-1), newPath)){
+					handledPath.add(newPath);
+				}
 			}
 		}
 	}
@@ -212,19 +222,9 @@ public class ZsonAdd implements ZsonAction{
 	}
 	
 	public static void main(String[] args) {
-		List<String> list = new ArrayList<String>();
-		list.add("a");
-		list.add("b");
-		list.add("c");
-		Iterator<String> it = list.iterator();
-		int index = 0;
-		while(it.hasNext()){
-			String k = it.next();
-			if(index==1){
-				list.add("d");
-			}
-			System.out.println(k);
-			index++;
-		}
+		String p = "/a/*[1]";
+		String p1 = "/a/*[1]/a";
+		String regPath = p.replaceAll("\\/", "\\\\/").replaceAll("\\*", "\\\\*").replaceAll("\\[", "\\\\[").replaceAll("\\]", "\\\\]").replaceAll("\\\\/\\\\/", "(/.+)*\\\\/");
+		System.out.println(p1.matches(regPath+"/.+"));
 	}
 }

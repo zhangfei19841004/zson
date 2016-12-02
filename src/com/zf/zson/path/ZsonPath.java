@@ -43,6 +43,11 @@ public class ZsonPath {
 		return targetPath.matches(regPath);
 	}
 	
+	public boolean ischildPath(String parentPath, String childPath){
+		String regPath = parentPath.replaceAll("\\/", "\\\\/").replaceAll("\\*", "\\\\*").replaceAll("\\[", "\\\\[").replaceAll("\\]", "\\\\]").replaceAll("\\\\/\\\\/", "(/.+)*\\\\/");
+		return childPath.matches(regPath+"/.+");
+	}
+	
 	public static void main(String[] args) {
 		ZsonPath zp = new ZsonPath("/\\/*[1]");
 		System.out.println(zp.checkPath());
