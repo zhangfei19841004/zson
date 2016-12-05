@@ -38,6 +38,7 @@ public class ZsonAdd implements ZsonAction{
 	@SuppressWarnings("unchecked")
 	@Override
 	public void process(ZsonResult zr, Object value, String currentPath) {
+		System.out.println(currentPath);
 		if(handledPath.contains(currentPath)){
 			return;
 		}
