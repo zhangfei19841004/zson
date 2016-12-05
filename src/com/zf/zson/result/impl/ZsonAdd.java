@@ -21,6 +21,8 @@ public class ZsonAdd implements ZsonAction{
 	
 	private List<String> handledPath = new ArrayList<String>();
 	
+	private String addRootPath;
+	
 	public void setAddJson(String addJson) {
 		this.addJson = addJson;
 	}
@@ -45,17 +47,19 @@ public class ZsonAdd implements ZsonAction{
 			//throw new RuntimeException("can not add value to this path: "+zri.getzPath().getPath());
 			return;
 		}
-		String parentPath = this.getParentPath(zri, key);
+		//String parentPath = this.getParentPath(zri, key);
 		Object pathValue = zri.getResultByKey(key);
 		if(pathValue instanceof List){
 			List<Object> pathList = (List<Object>) pathValue;
 			ZsonResultImpl zra = (ZsonResultImpl) zri.parseJsonToZson(addJson);
 			Object actionValue = zra.getResultByKey(ZsonUtils.BEGIN_KEY);
 			pathList.add(addIndex, actionValue);
-			handledPath.add(parentPath+"/["+addIndex+"]");
+			addRootPath = currentPath+"/*["+addIndex+"]";
+			handledPath.add(currentPath);
+			handledPath.add(addRootPath);
 			ZsonResultImpl zrNew = (ZsonResultImpl) zri.parseJsonToZson(ZSON.toJsonString(pathList));
 			this.deleteZsonResultInfoChilrenKey(zri, key);
-			this.replaceZsonResultInfoKey(zrNew, key, parentPath);
+			this.replaceZsonResultInfoKey(zrNew, key, currentPath);
 			this.addNewResultToSourceResult(zri, zrNew);
 			this.recorrectIndex(zri);
 		}
@@ -115,7 +119,7 @@ public class ZsonAdd implements ZsonAction{
 			for (String k : pathMap.keySet()) {
 				String newPath = parentPath+pathMap.get(k);
 				pathMap.put(k, newPath);
-				if(zrNew.getzPath().ischildPath(handledPath.get(handledPath.size()-1), newPath)){
+				if(zrNew.getzPath().ischildPath(addRootPath, newPath)){
 					handledPath.add(newPath);
 				}
 			}
@@ -124,7 +128,7 @@ public class ZsonAdd implements ZsonAction{
 			for (int i = 0; i < pathList.size(); i++) {
 				String newPath = parentPath+pathList.get(i);
 				pathList.set(i, newPath);
-				if(zrNew.getzPath().ischildPath(handledPath.get(handledPath.size()-1), newPath)){
+				if(zrNew.getzPath().ischildPath(addRootPath, newPath)){
 					handledPath.add(newPath);
 				}
 			}
@@ -172,16 +176,16 @@ public class ZsonAdd implements ZsonAction{
 		return 0;
 	}
 	
-	private Map<String, Integer> getIndexInfoByKey(ZsonResultImpl zri, String key){
+	/*private Map<String, Integer> getIndexInfoByKey(ZsonResultImpl zri, String key){
 		if(zri.getzResultInfo().getIndex().containsKey(key)){
 			return zri.getzResultInfo().getIndex().get(key);
 		}else{
 			zri.getzResultInfo().setValid(false);
 			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 		}
-	}
+	}*/
 	
-	@SuppressWarnings("unchecked")
+	/*@SuppressWarnings("unchecked")
 	private String getParentPath(ZsonResultImpl zri, String key){
 		if(ZsonUtils.BEGIN_KEY.equals(key)){
 			return "";
@@ -219,7 +223,7 @@ public class ZsonAdd implements ZsonAction{
 			}
 		}
 		throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
-	}
+	}*/
 	
 	public static void main(String[] args) {
 		String p = "/a/*[1]";

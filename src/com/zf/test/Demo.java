@@ -8,7 +8,7 @@ public class Demo {
 	public static void main(String[] args) {
 		String s1 = "[{ \"firstName\": \"Eric\", \"lastName\": \"Clapton\", \"instrument\": \"guitar\" },{ \"firstName\": \"Sergei\", \"lastName\": \"Rachmaninoff\", \"instrument\": \"piano\" }] ";
 		String s2 = "[0,1,2,3.14,4.00,\"3\",true,\"\"]";
-		String s3 = "{\"a\":[\"a1\",{\"a2\":123},\"a1\"],\"cb\":{\"a\":1},\"d\":[\"a\",{\"a\":[1,20]},{\"a\":2},\"\"],\"e\":\"b\"}";
+		String s3 = "{\"a\":[\"a1\",{\"a2\":123},\"a1\"],\"cb\":{\"a\":1},\"d\":[\"a\",{\"a\":[1,20,{\"a\":[90]}]},{\"a\":2},\"\"],\"e\":\"b\"}";
 		ZsonResult zr1 = ZSON.parseJson(s1);
 		System.out.println(zr1.getValue("/*[1]/lastName"));
 		System.out.println(zr1.getValues("/*[1]/lastName"));

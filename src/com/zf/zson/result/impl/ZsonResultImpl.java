@@ -51,6 +51,7 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 		}
 		List<String> levels = zResultInfo.getLevel();
 		for (int i = 0; i < levels.size(); i++) {
+			System.out.println(levels.get(i));
 			ZsonObject<String> pathObject = new ZsonObject<String>();
 			pathObject.objectConvert(zResultInfo.getPath().get(i));
 			if(pathObject.isList()){
