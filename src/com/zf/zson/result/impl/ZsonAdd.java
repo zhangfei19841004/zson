@@ -23,6 +23,8 @@ public class ZsonAdd implements ZsonAction{
 	
 	private String addRootPath;
 	
+	private int deleteFromIndex;
+	
 	public void setAddJson(String addJson) {
 		this.addJson = addJson;
 	}
@@ -68,18 +70,23 @@ public class ZsonAdd implements ZsonAction{
 	}
 	
 	private void addNewResultToSourceResult(ZsonResultImpl source, ZsonResultImpl newResult){
-		source.getzResultInfo().getLevel().addAll(addIndex, newResult.getzResultInfo().getLevel());
-		source.getzResultInfo().getPath().addAll(addIndex, newResult.getzResultInfo().getPath());
+		source.getzResultInfo().getLevel().addAll(deleteFromIndex, newResult.getzResultInfo().getLevel());
+		source.getzResultInfo().getPath().addAll(deleteFromIndex, newResult.getzResultInfo().getPath());
 		source.getzResultInfo().getIndex().putAll(newResult.getzResultInfo().getIndex());
-		source.getzResultInfo().getCollections().addAll(addIndex, newResult.getzResultInfo().getCollections());
+		source.getzResultInfo().getCollections().addAll(deleteFromIndex, newResult.getzResultInfo().getCollections());
 	}
 	
 	private void deleteZsonResultInfoChilrenKey(ZsonResultImpl zri, String key){
 		Iterator<String> it = zri.getzResultInfo().getLevel().iterator();
 		int index = 0;
+		boolean flag = false;
 		while(it.hasNext()){
 			String level = it.next();
 			if(level.matches(key.replaceAll("\\.", "\\\\.")+"(\\.\\d+)*")){
+				if(!flag){
+					deleteFromIndex = index;
+					flag = true;
+				}
 				it.remove();
 				zri.getzResultInfo().getPath().remove(index);
 				zri.getzResultInfo().getIndex().remove(level);
