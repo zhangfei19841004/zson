@@ -29,6 +29,7 @@ public class Demo {
 		//System.out.println(ZSON.parseJson(s2).addValue("/*[1]", "{\"a\":1}"));
 		System.out.println(s3);
 		zr3.addValue("//a", "{\"a\":12}");
+		System.out.println(zr3.getValues("//a"));
 //		System.out.println(zr3.getList("/a"));
 //		System.out.println(zr3.getMap("/cb"));
 //		System.out.println(zr3.toJsonString(zr3.getResult()));

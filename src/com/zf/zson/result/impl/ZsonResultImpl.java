@@ -8,7 +8,6 @@ import java.util.Map;
 import com.zf.zson.ZsonUtils;
 import com.zf.zson.object.ZsonObject;
 import com.zf.zson.result.ZsonAction;
-import com.zf.zson.result.ZsonResult;
 import com.zf.zson.result.ZsonResultAbstract;
 
 public class ZsonResultImpl extends ZsonResultAbstract{
@@ -177,9 +176,8 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 	}
 
 	@Override
-	public ZsonResult addValue(String path, String json) {
+	public void addValue(String path, String json) {
 		this.addValue(path, 1, json);
-		return null;
 	}
 	
 }

@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.zf.zson.ZSON;
 import com.zf.zson.ZsonUtils;
+import com.zf.zson.object.ZsonObject;
 import com.zf.zson.result.ZsonAction;
 import com.zf.zson.result.ZsonResult;
 
@@ -37,10 +38,8 @@ public class ZsonAdd implements ZsonAction{
 		this.addIndex = addIndex;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void process(ZsonResult zr, Object value, String currentPath) {
-		System.out.println(currentPath);
 		if(handledPath.contains(currentPath)){
 			return;
 		}
@@ -52,8 +51,10 @@ public class ZsonAdd implements ZsonAction{
 		}
 		//String parentPath = this.getParentPath(zri, key);
 		Object pathValue = zri.getResultByKey(key);
-		if(pathValue instanceof List){
-			List<Object> pathList = (List<Object>) pathValue;
+		ZsonObject<Object> valueByKeyObj = new ZsonObject<Object>();
+		valueByKeyObj.objectConvert(pathValue);
+		if(valueByKeyObj.isList()){
+			List<Object> pathList = valueByKeyObj.getZsonList();
 			ZsonResultImpl zra = (ZsonResultImpl) zri.parseJsonToZson(addJson);
 			Object actionValue = zra.getResultByKey(ZsonUtils.BEGIN_KEY);
 			pathList.add(addIndex, actionValue);
@@ -120,10 +121,11 @@ public class ZsonAdd implements ZsonAction{
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void updatePaths(ZsonResultImpl zrNew, Object paths, String parentPath){
-		if(paths instanceof Map){
-			Map<String, String> pathMap = (Map<String, String>) paths;
+		ZsonObject<String> pathObj = new ZsonObject<String>();
+		pathObj.objectConvert(paths);
+		if(pathObj.isMap()){
+			Map<String, String> pathMap = pathObj.getZsonMap();
 			for (String k : pathMap.keySet()) {
 				String newPath = parentPath+pathMap.get(k);
 				pathMap.put(k, newPath);
@@ -131,8 +133,8 @@ public class ZsonAdd implements ZsonAction{
 					handledPath.add(newPath);
 				}
 			}
-		}else if(paths instanceof List){
-			List<String> pathList = (List<String>) paths;
+		}else if(pathObj.isList()){
+			List<String> pathList = pathObj.getZsonList();
 			for (int i = 0; i < pathList.size(); i++) {
 				String newPath = parentPath+pathList.get(i);
 				pathList.set(i, newPath);

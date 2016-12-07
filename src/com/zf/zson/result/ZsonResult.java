@@ -23,6 +23,6 @@ public interface ZsonResult{
 	
 	public boolean getBoolean(String path);
 	
-	public ZsonResult addValue(String path, String json);
+	public void addValue(String path, String json);
 	
 }
