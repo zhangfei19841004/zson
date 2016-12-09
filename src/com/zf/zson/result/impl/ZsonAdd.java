@@ -18,7 +18,7 @@ public class ZsonAdd implements ZsonAction{
 	
 	private String addKey;
 	
-	private int addIndex;
+	private Integer addIndex;
 	
 	private List<String> handledPath = new ArrayList<String>();
 	
@@ -34,7 +34,7 @@ public class ZsonAdd implements ZsonAction{
 		this.addKey = addKey;
 	}
 
-	public void setAddIndex(int addIndex) {
+	public void setAddIndex(Integer addIndex) {
 		this.addIndex = addIndex;
 	}
 
@@ -53,15 +53,28 @@ public class ZsonAdd implements ZsonAction{
 		Object pathValue = zri.getResultByKey(key);
 		ZsonObject<Object> valueByKeyObj = new ZsonObject<Object>();
 		valueByKeyObj.objectConvert(pathValue);
-		if(valueByKeyObj.isList()){
-			List<Object> pathList = valueByKeyObj.getZsonList();
+		if(addIndex!=null && valueByKeyObj.isList()){
+			List<Object> pathValueList = valueByKeyObj.getZsonList();
 			ZsonResultImpl zra = (ZsonResultImpl) zri.parseJsonToZson(addJson);
 			Object actionValue = zra.getResultByKey(ZsonUtils.BEGIN_KEY);
-			pathList.add(addIndex, actionValue);
+			pathValueList.add(addIndex, actionValue);
 			addRootPath = currentPath+"/*["+addIndex+"]";
 			handledPath.add(currentPath);
 			handledPath.add(addRootPath);
-			ZsonResultImpl zrNew = (ZsonResultImpl) zri.parseJsonToZson(ZSON.toJsonString(pathList));
+			ZsonResultImpl zrNew = (ZsonResultImpl) zri.parseJsonToZson(ZSON.toJsonString(pathValueList));
+			this.deleteZsonResultInfoChilrenKey(zri, key);
+			this.replaceZsonResultInfoKey(zrNew, key, currentPath);
+			this.addNewResultToSourceResult(zri, zrNew);
+			this.recorrectIndex(zri);
+		}else if(addKey!=null && valueByKeyObj.isMap()){
+			Map<String, Object> pathValueMap = valueByKeyObj.getZsonMap();
+			ZsonResultImpl zra = (ZsonResultImpl) zri.parseJsonToZson(addJson);
+			Object actionValue = zra.getResultByKey(ZsonUtils.BEGIN_KEY);
+			pathValueMap.put(addKey, actionValue);
+			addRootPath = currentPath+"/"+addKey;
+			handledPath.add(currentPath);
+			handledPath.add(addRootPath);
+			ZsonResultImpl zrNew = (ZsonResultImpl) zri.parseJsonToZson(ZSON.toJsonString(pathValueMap));
 			this.deleteZsonResultInfoChilrenKey(zri, key);
 			this.replaceZsonResultInfoKey(zrNew, key, currentPath);
 			this.addNewResultToSourceResult(zri, zrNew);
@@ -69,6 +82,12 @@ public class ZsonAdd implements ZsonAction{
 		}
 		System.out.println(ZSON.toJsonString(zri.getResultByKey("1")));
 	}
+	
+//	private ZsonResultImpl parseAddJson(){
+//		ZsonResultImpl zra = (ZsonResultImpl) zri.parseJsonToZson(addJson);
+//		Object actionValue = zra.getResultByKey(ZsonUtils.BEGIN_KEY);
+//		
+//	}
 	
 	private void addNewResultToSourceResult(ZsonResultImpl source, ZsonResultImpl newResult){
 		source.getzResultInfo().getLevel().addAll(deleteFromIndex, newResult.getzResultInfo().getLevel());
@@ -145,12 +164,11 @@ public class ZsonAdd implements ZsonAction{
 		}
 	}
 	
-	private Map<String, Map<String, Integer>> updateIndexs(Map<String, Map<String, Integer>> index, Map<String, Map<String, Integer>> newIndex, String key, String targetKey){
+	private void updateIndexs(Map<String, Map<String, Integer>> index, Map<String, Map<String, Integer>> newIndex, String key, String targetKey){
 		Map<String, Integer> indexInfo = index.get(key);
-		indexInfo.put(ZsonUtils.INDEX, indexInfo.get(ZsonUtils.INDEX)+addIndex);
+		//indexInfo.put(ZsonUtils.INDEX, indexInfo.get(ZsonUtils.INDEX)+addIndex);
 		String newKey = targetKey+key.substring(1);
 		newIndex.put(newKey, indexInfo);
-		return newIndex;
 	}
 	
 	@SuppressWarnings("unchecked")

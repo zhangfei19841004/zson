@@ -167,8 +167,9 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 			throw new RuntimeException("can not get String with path: "+path);
 		}
 	}
-	
-	private void addValue(String path, int index, String json){
+
+	@Override
+	public void addValue(String path, int index, String json) {
 		ZsonAdd add = new ZsonAdd();
 		add.setAddIndex(index);
 		add.setAddJson(json);
@@ -176,8 +177,11 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 	}
 
 	@Override
-	public void addValue(String path, String json) {
-		this.addValue(path, 1, json);
+	public void addValue(String path, String key, String json) {
+		ZsonAdd add = new ZsonAdd();
+		add.setAddKey(key);
+		add.setAddJson(json);
+		this.resultHandle(add, path, false);
 	}
 	
 }
