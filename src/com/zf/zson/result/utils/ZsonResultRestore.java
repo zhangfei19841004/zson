@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.zf.zson.ZsonUtils;
+import com.zf.zson.object.ZsonObject;
 import com.zf.zson.result.ZsonResultAbstract;
 
 public class ZsonResultRestore {
@@ -16,12 +17,13 @@ public class ZsonResultRestore {
 		this.zsonResultAbstract = zsonResultAbstract;
 	}
 
-	@SuppressWarnings("unchecked")
 	public Object restoreObject(Object obj){
-		if(obj instanceof Map){
-			return this.restoreMap((Map<String, Object>) obj);
-		}else if(obj instanceof List){
-			return this.restoreList((List<Object>) obj);
+		ZsonObject<Object> objR = new ZsonObject<Object>();
+		objR.objectConvert(obj);
+		if(objR.isMap()){
+			return this.restoreMap(objR.getZsonMap());
+		}else if(objR.isList()){
+			return this.restoreList(objR.getZsonList());
 		}else{
 			return obj;
 		}

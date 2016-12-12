@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.zf.zson.ZsonUtils;
+import com.zf.zson.object.ZsonObject;
 
 public class ZsonResultToString {
 	
@@ -33,26 +34,27 @@ public class ZsonResultToString {
 		return sb.toString();
 	}
 	
-	@SuppressWarnings("unchecked")
 	public String toJsonString(Object obj){
-		if(obj instanceof Map){
-			return this.mapToString((Map<Object, Object>) obj);
-		}else if(obj instanceof List){
-			return this.listToString((List<Object>) obj);
+		ZsonObject<Object> objR = new ZsonObject<Object>();
+		objR.objectConvert(obj);
+		if(objR.isMap()){
+			return this.mapToString(objR.getZsonMap());
+		}else if(objR.isList()){
+			return this.listToString(objR.getZsonList());
 		}else{
 			throw new RuntimeException("obj must be map or list!");
 		}
 	}
 	
-	private String mapToString(Map<Object, Object> map){
+	private String mapToString(Map<String, Object> map){
 		StringBuffer sb = new StringBuffer();
 		sb.append(ZsonUtils.jsonMapBegin);
 		int index = 0;
 		if(map!=null){
 			for (Object key : map.keySet()) {
-				if(!(key instanceof String)){
+				/*if(!(key instanceof String)){
 					throw new RuntimeException("map key must be string!");
-				}
+				}*/
 				if(index!=0){
 					sb.append(ZsonUtils.jsonElementConnector);
 				}

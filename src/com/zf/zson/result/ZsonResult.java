@@ -7,6 +7,8 @@ public interface ZsonResult{
 	
 	public boolean isValid();
 	
+	public Object getResult();
+	
 	public Object getValue(String path);
 	
 	public List<Object> getValues(String path);

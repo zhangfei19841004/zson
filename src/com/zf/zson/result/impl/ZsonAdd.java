@@ -46,41 +46,36 @@ public class ZsonAdd implements ZsonAction{
 		ZsonResultImpl zri = (ZsonResultImpl) zr;
 		String key = zri.getElementKey(value);
 		if(key == null){
-			//throw new RuntimeException("can not add value to this path: "+zri.getzPath().getPath());
 			return;
 		}
 		//String parentPath = this.getParentPath(zri, key);
 		Object pathValue = zri.getResultByKey(key);
 		ZsonObject<Object> valueByKeyObj = new ZsonObject<Object>();
 		valueByKeyObj.objectConvert(pathValue);
-		if(addIndex!=null && valueByKeyObj.isList()){
-			List<Object> pathValueList = valueByKeyObj.getZsonList();
-			ZsonResultImpl zra = (ZsonResultImpl) zri.parseJsonToZson(addJson);
-			Object actionValue = zra.getResultByKey(ZsonUtils.BEGIN_KEY);
-			pathValueList.add(addIndex, actionValue);
-			addRootPath = currentPath+"/*["+addIndex+"]";
+		if((addIndex!=null && valueByKeyObj.isList()) || (addKey!=null && valueByKeyObj.isMap())){
+			Object addObj = null;
+			if(addIndex!=null && valueByKeyObj.isList()){
+				List<Object> pathValueList = valueByKeyObj.getZsonList();
+				Object actionValue = this.getAddObject(zri);
+				pathValueList.add(addIndex, actionValue);
+				addRootPath = currentPath+"/*["+addIndex+"]";
+				addObj = pathValueList;
+				
+			}else if(addKey!=null && valueByKeyObj.isMap()){
+				Map<String, Object> pathValueMap = valueByKeyObj.getZsonMap();
+				Object actionValue = this.getAddObject(zri);
+				pathValueMap.put(addKey, actionValue);
+				addRootPath = currentPath+"/"+addKey;
+				addObj = pathValueMap;
+			}
 			handledPath.add(currentPath);
 			handledPath.add(addRootPath);
-			ZsonResultImpl zrNew = (ZsonResultImpl) zri.parseJsonToZson(ZSON.toJsonString(pathValueList));
-			this.deleteZsonResultInfoChilrenKey(zri, key);
-			this.replaceZsonResultInfoKey(zrNew, key, currentPath);
-			this.addNewResultToSourceResult(zri, zrNew);
-			this.recorrectIndex(zri);
-		}else if(addKey!=null && valueByKeyObj.isMap()){
-			Map<String, Object> pathValueMap = valueByKeyObj.getZsonMap();
-			ZsonResultImpl zra = (ZsonResultImpl) zri.parseJsonToZson(addJson);
-			Object actionValue = zra.getResultByKey(ZsonUtils.BEGIN_KEY);
-			pathValueMap.put(addKey, actionValue);
-			addRootPath = currentPath+"/"+addKey;
-			handledPath.add(currentPath);
-			handledPath.add(addRootPath);
-			ZsonResultImpl zrNew = (ZsonResultImpl) zri.parseJsonToZson(ZSON.toJsonString(pathValueMap));
+			ZsonResultImpl zrNew = (ZsonResultImpl) zri.parseJsonToZson(ZSON.toJsonString(addObj));
 			this.deleteZsonResultInfoChilrenKey(zri, key);
 			this.replaceZsonResultInfoKey(zrNew, key, currentPath);
 			this.addNewResultToSourceResult(zri, zrNew);
 			this.recorrectIndex(zri);
 		}
-		System.out.println(ZSON.toJsonString(zri.getResultByKey("1")));
 	}
 	
 //	private ZsonResultImpl parseAddJson(){
@@ -88,6 +83,17 @@ public class ZsonAdd implements ZsonAction{
 //		Object actionValue = zra.getResultByKey(ZsonUtils.BEGIN_KEY);
 //		
 //	}
+	
+	private Object getAddObject(ZsonResultImpl zri){
+		Object actionValue = addJson;
+		try{
+			ZsonResultImpl zra = (ZsonResultImpl) zri.parseJsonToZson(addJson);
+			actionValue = zra.getResultByKey(ZsonUtils.BEGIN_KEY);
+		}catch(Exception e){
+			
+		}
+		return actionValue;
+	}
 	
 	private void addNewResultToSourceResult(ZsonResultImpl source, ZsonResultImpl newResult){
 		source.getzResultInfo().getLevel().addAll(deleteFromIndex, newResult.getzResultInfo().getLevel());
@@ -171,28 +177,32 @@ public class ZsonAdd implements ZsonAction{
 		newIndex.put(newKey, indexInfo);
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void updateCollections(Object collection, String targetKey){
-		if(collection instanceof Map){
-			Map<String, Object> collectionMap = (Map<String, Object>) collection;
+		ZsonObject<Object> collectionObj = new ZsonObject<Object>();
+		collectionObj.objectConvert(collection);
+		if(collectionObj.isMap()){
+			Map<String, Object> collectionMap = collectionObj.getZsonMap();
 			for (String k : collectionMap.keySet()) {
-				Object cObj = collectionMap.get(k);
-				if(cObj instanceof Map){
-					Map<String, String> cMap = (Map<String, String>) cObj;
+				ZsonObject<String> cElementObj = new ZsonObject<String>();
+				cElementObj.objectConvert(collectionMap.get(k));
+				if(cElementObj.isMap()){
+					Map<String, String> cMap = cElementObj.getZsonMap();
 					cMap.put(ZsonUtils.LINK, targetKey+cMap.get(ZsonUtils.LINK).substring(1));
-				}else if(cObj instanceof List){
-					List<String> cList = (List<String>) cObj;
+				}else if(cElementObj.isList()){
+					List<String> cList = cElementObj.getZsonList();
 					cList.set(0, targetKey+cList.get(0).substring(1));
 				}
 			}
-		}else if(collection instanceof List){
-			List<Object> collectionList = (List<Object>) collection;
+		}else if(collectionObj.isList()){
+			List<Object> collectionList = collectionObj.getZsonList();
 			for (Object cObj : collectionList) {
-				if(cObj instanceof Map){
-					Map<String, String> cMap = (Map<String, String>) cObj;
+				ZsonObject<String> cElementObj = new ZsonObject<String>();
+				cElementObj.objectConvert(cObj);
+				if(cElementObj.isMap()){
+					Map<String, String> cMap = cElementObj.getZsonMap();
 					cMap.put(ZsonUtils.LINK, targetKey+cMap.get(ZsonUtils.LINK).substring(1));
-				}else if(cObj instanceof List){
-					List<String> cList = (List<String>) cObj;
+				}else if(cElementObj.isList()){
+					List<String> cList = cElementObj.getZsonList();
 					cList.set(0, targetKey+cList.get(0).substring(1));
 				}
 			}

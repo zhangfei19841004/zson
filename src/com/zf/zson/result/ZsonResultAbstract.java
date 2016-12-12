@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.zf.zson.ZsonUtils;
+import com.zf.zson.object.ZsonObject;
 import com.zf.zson.parse.ZsonParse;
 import com.zf.zson.path.ZsonPath;
 import com.zf.zson.result.info.ZsonResultInfo;
@@ -45,15 +46,14 @@ public abstract class ZsonResultAbstract implements ZsonResult{
 		return zsonResultRestore;
 	}
 
-	@SuppressWarnings("unchecked")
 	public String getElementKey(Object value){
+		ZsonObject<String> keyObj = new ZsonObject<String>();
+		keyObj.objectConvert(value);
 		String key = null;
-		if(value instanceof Map){
-			Map<String, String> vMap = (Map<String, String>) value;
-			key = vMap.get(ZsonUtils.LINK);
-		}else if(value instanceof List){
-			List<String> vList = (List<String>) value;
-			key = vList.get(0);
+		if(keyObj.isMap()){
+			key = keyObj.getZsonMap().get(ZsonUtils.LINK);
+		}else if(keyObj.isList()){
+			key = keyObj.getZsonList().get(0);
 		}else{
 			key = null;
 		}

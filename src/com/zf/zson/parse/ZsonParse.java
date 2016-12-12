@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.zf.zson.ZsonUtils;
+import com.zf.zson.object.ZsonObject;
 import com.zf.zson.result.ZsonResult;
 import com.zf.zson.result.impl.ZsonResultImpl;
 import com.zf.zson.result.info.ZsonResultInfo;
@@ -22,7 +23,6 @@ public class ZsonParse {
 		this.json = json;
 	}
 
-	@SuppressWarnings("unchecked")
 	private void addElementToCollections(int type, String element, String v, boolean isFinished){
 		try{
 			int lastUNFIndex = this.getLatestUNFinishedLevelIndex();
@@ -32,13 +32,15 @@ public class ZsonParse {
 				throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 			}else{
 				Object elementObj = zResultInfo.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
+				ZsonObject<Object> eObj = new ZsonObject<Object>();
+				eObj.objectConvert(elementObj);
 				if(type==1){
-					List<Object> elementList = (List<Object>) elementObj; 
+					List<Object> elementList = eObj.getZsonList();
 					if(!(elementList.size()==0 && element.equals("") && isFinished)){
 						elementList.add(this.getElementInstance(element));
 					}
 				}else{
-					Map<String, Object> elementMap = (Map<String, Object>) elementObj;
+					Map<String, Object> elementMap = eObj.getZsonMap();
 					if(!(elementMap.size()==0 && element.equals("") && v.equals("") && isFinished)){
 						if(!this.isValidElement(v)){
 							zResultInfo.setValid(false);
@@ -58,20 +60,20 @@ public class ZsonParse {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void setElementPath(int type, int index, String element){
+		ZsonObject<String> pathObj = new ZsonObject<String>();
+		pathObj.objectConvert(zResultInfo.getPath().get(index));
 		if(type==1){
-			List<String> pathObj = (List<String>) zResultInfo.getPath().get(index);
-			String path = this.getParentPath(zResultInfo.getLevel().get(index))+"/*["+pathObj.size()+"]";
-			pathObj.add(path);
+			List<String> pathObjList = pathObj.getZsonList();
+			String path = this.getParentPath(zResultInfo.getLevel().get(index))+"/*["+pathObjList.size()+"]";
+			pathObjList.add(path);
 		}else{
-			Map<String, String> pathObj = (Map<String, String>) zResultInfo.getPath().get(index);
+			Map<String, String> pathObjMap = pathObj.getZsonMap();
 			String path = this.getParentPath(zResultInfo.getLevel().get(index))+"/"+this.getElementInstance(element).toString();
-			pathObj.put(this.getElementInstance(element).toString(), path);
+			pathObjMap.put(this.getElementInstance(element).toString(), path);
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	private String getParentPath(String key){
 		if(ZsonUtils.BEGIN_KEY.equals(key)){
 			return "";
@@ -80,30 +82,37 @@ public class ZsonParse {
 		Map<String, Integer> pIndexInfo = this.getIndexInfoByKey(pKey);
 		int pType = pIndexInfo.get(ZsonUtils.TYPE);
 		int pIndex = pIndexInfo.get(ZsonUtils.INDEX);
+		ZsonObject<String> pPathObj = new ZsonObject<String>();
+		pPathObj.objectConvert(zResultInfo.getPath().get(pIndex));
+		ZsonObject<Object> collectionObj = new ZsonObject<Object>();
+		collectionObj.objectConvert(zResultInfo.getCollections().get(pIndexInfo.get(ZsonUtils.INDEX)));
 		if(pType==0){
-			Map<String,Object> pElement = (Map<String, Object>) zResultInfo.getCollections().get(pIndexInfo.get(ZsonUtils.INDEX));
+			Map<String,Object> pElement = collectionObj.getZsonMap();
 			for (String k : pElement.keySet()) {
-				if(pElement.get(k) instanceof Map){
-					if(key.equals(((Map<String,String>)pElement.get(k)).get(ZsonUtils.LINK))){
-						return ((Map<String,String>)zResultInfo.getPath().get(pIndex)).get(k);
+				ZsonObject<String> pObj = new ZsonObject<String>();
+				pObj.objectConvert(pElement.get(k));
+				if(pObj.isMap()){
+					if(key.equals(pObj.getZsonMap().get(ZsonUtils.LINK))){
+						return pPathObj.getZsonMap().get(k);
 					}
-				}else if(pElement.get(k) instanceof List){
-					if(key.equals(((List<String>)pElement.get(k)).get(0))){
-						return ((Map<String,String>)zResultInfo.getPath().get(pIndex)).get(k);
+				}else if(pObj.isList()){
+					if(key.equals(pObj.getZsonList().get(0))){
+						return pPathObj.getZsonMap().get(k);
 					}
 				}
 			}
 		}else{
-			List<Object> pElement = (List<Object>) zResultInfo.getCollections().get(pIndexInfo.get(ZsonUtils.INDEX));
+			List<Object> pElement = collectionObj.getZsonList();
 			for (int i=0; i<pElement.size();i++) {
-				Object object = pElement.get(i);
-				if(object instanceof Map){
-					if(key.equals(((Map<String,String>)object).get(ZsonUtils.LINK))){
-						return ((List<String>)zResultInfo.getPath().get(pIndex)).get(i);
+				ZsonObject<String> pObj = new ZsonObject<String>();
+				pObj.objectConvert(pElement.get(i));
+				if(pObj.isMap()){
+					if(key.equals(pObj.getZsonMap().get(ZsonUtils.LINK))){
+						return pPathObj.getZsonList().get(i);
 					}
-				}else if(object instanceof List){
-					if(key.equals(((List<String>)object).get(0))){
-						return ((List<String>)zResultInfo.getPath().get(pIndex)).get(i);
+				}else if(pObj.isList()){
+					if(key.equals(pObj.getZsonList().get(0))){
+						return pPathObj.getZsonList().get(i);
 					}
 				}
 			}
@@ -131,7 +140,6 @@ public class ZsonParse {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void addToParent(String element, boolean isMap, String key){
 		try{
 			String pKey = key.substring(0, key.lastIndexOf('.'));
@@ -140,13 +148,15 @@ public class ZsonParse {
 				zResultInfo.setValid(false);
 				throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 			}
+			ZsonObject<Object> elementObj = new ZsonObject<Object>();
+			elementObj.objectConvert(zResultInfo.getCollections().get(pElement.get(ZsonUtils.INDEX)));
 			if(isMap){
-				Map<String, Object> elementMap = (Map<String, Object>) zResultInfo.getCollections().get(pElement.get(ZsonUtils.INDEX));
+				Map<String, Object> elementMap = elementObj.getZsonMap();
 				Map<String, String> temp = new HashMap<String, String>();
 				temp.put(ZsonUtils.LINK, key);
 				elementMap.put(this.getElementInstance(element).toString(), temp);
 			}else{
-				List<Object> elementList = (List<Object>) zResultInfo.getCollections().get(pElement.get(ZsonUtils.INDEX));
+				List<Object> elementList = elementObj.getZsonList();
 				List<String> temp = new ArrayList<String>();
 				temp.add(key);
 				elementList.add(temp);

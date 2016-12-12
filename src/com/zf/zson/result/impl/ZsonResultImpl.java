@@ -183,5 +183,10 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 		add.setAddJson(json);
 		this.resultHandle(add, path, false);
 	}
+
+	@Override
+	public Object getResult() {
+		return this.getResultByKey(ZsonUtils.BEGIN_KEY);
+	}
 	
 }
