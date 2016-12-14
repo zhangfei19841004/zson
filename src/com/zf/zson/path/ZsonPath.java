@@ -3,6 +3,10 @@ package com.zf.zson.path;
 public class ZsonPath {
 	
 	private String path;
+	
+	private Integer index;
+	
+	private String key;
 
 	public ZsonPath(String path) {
 		this.path = path;
@@ -19,8 +23,27 @@ public class ZsonPath {
 	public void setPath(String path) {
 		this.path = path;
 	}
-	
+
+	public Integer getIndex() {
+		return index;
+	}
+
+	public void setIndex(Integer index) {
+		this.index = index;
+	}
+
+	public String getKey() {
+		return key;
+	}
+
+	public void setKey(String key) {
+		this.key = key;
+	}
+
 	public boolean checkAbsolutePath(){
+		if(this.isRootPath()){
+			return true;
+		}
 		return path.matches("(/[^/]+)+");
 	}
 	
@@ -29,13 +52,23 @@ public class ZsonPath {
 	}
 	
 	public boolean checkPath(){
+		if(this.isRootPath()){
+			return true;
+		}
 		if(!this.checkAbsolutePath() && !this.checkRelativePath()){
 			return false;
 		}
 		return true;
 	}
 	
+	public boolean isRootPath(){
+		return "".equals(path);
+	}
+	
 	public boolean isMatchPath(String targetPath){
+		/*if(this.isRootPath()){
+			return targetPath.matches("/[^/]+");
+		}*/
 		if(this.checkAbsolutePath()){
 			return path.equals(targetPath);
 		}
@@ -54,6 +87,7 @@ public class ZsonPath {
 		System.out.println(zp.checkAbsolutePath());
 		System.out.println(zp.checkRelativePath());
 		System.out.println(zp.isMatchPath("/\\/*[1]"));
+		System.out.println("/*[]/a".matches("/[^/]+"));
 	}
 	
 	

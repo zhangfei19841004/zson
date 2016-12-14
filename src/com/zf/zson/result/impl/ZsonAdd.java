@@ -78,12 +78,6 @@ public class ZsonAdd implements ZsonAction{
 		}
 	}
 	
-//	private ZsonResultImpl parseAddJson(){
-//		ZsonResultImpl zra = (ZsonResultImpl) zri.parseJsonToZson(addJson);
-//		Object actionValue = zra.getResultByKey(ZsonUtils.BEGIN_KEY);
-//		
-//	}
-	
 	private Object getAddObject(ZsonResultImpl zri){
 		Object actionValue = addJson;
 		try{
@@ -213,55 +207,6 @@ public class ZsonAdd implements ZsonAction{
 	public int offset(ZsonResult zr, Object value) {
 		return 0;
 	}
-	
-	/*private Map<String, Integer> getIndexInfoByKey(ZsonResultImpl zri, String key){
-		if(zri.getzResultInfo().getIndex().containsKey(key)){
-			return zri.getzResultInfo().getIndex().get(key);
-		}else{
-			zri.getzResultInfo().setValid(false);
-			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
-		}
-	}*/
-	
-	/*@SuppressWarnings("unchecked")
-	private String getParentPath(ZsonResultImpl zri, String key){
-		if(ZsonUtils.BEGIN_KEY.equals(key)){
-			return "";
-		}
-		String pKey = key.substring(0, key.lastIndexOf('.'));
-		Map<String, Integer> pIndexInfo = this.getIndexInfoByKey(zri, pKey);
-		int pType = pIndexInfo.get(ZsonUtils.TYPE);
-		int pIndex = pIndexInfo.get(ZsonUtils.INDEX);
-		if(pType==0){
-			Map<String,Object> pElement = (Map<String, Object>) zri.getzResultInfo().getCollections().get(pIndexInfo.get(ZsonUtils.INDEX));
-			for (String k : pElement.keySet()) {
-				if(pElement.get(k) instanceof Map){
-					if(key.equals(((Map<String,String>)pElement.get(k)).get(ZsonUtils.LINK))){
-						return ((Map<String,String>)zri.getzResultInfo().getPath().get(pIndex)).get(k);
-					}
-				}else if(pElement.get(k) instanceof List){
-					if(key.equals(((List<String>)pElement.get(k)).get(0))){
-						return ((Map<String,String>)zri.getzResultInfo().getPath().get(pIndex)).get(k);
-					}
-				}
-			}
-		}else{
-			List<Object> pElement = (List<Object>) zri.getzResultInfo().getCollections().get(pIndexInfo.get(ZsonUtils.INDEX));
-			for (int i=0; i<pElement.size();i++) {
-				Object object = pElement.get(i);
-				if(object instanceof HashMap){
-					if(key.equals(((Map<String,String>)object).get(ZsonUtils.LINK))){
-						return ((List<String>)zri.getzResultInfo().getPath().get(pIndex)).get(i);
-					}
-				}else if(object instanceof ArrayList){
-					if(key.equals(((List<String>)object).get(0))){
-						return ((List<String>)zri.getzResultInfo().getPath().get(pIndex)).get(i);
-					}
-				}
-			}
-		}
-		throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
-	}*/
 	
 	public static void main(String[] args) {
 		String p = "/a/*[1]";

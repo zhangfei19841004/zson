@@ -45,6 +45,16 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 	
 	private void resultHandle(ZsonAction za, String path, boolean isSingleResult){
 		this.beforeHandle(path);
+		if(zPath.isRootPath()){
+			ZsonObject<Object> resultObject = new ZsonObject<Object>();
+			resultObject.objectConvert(zResultInfo.getCollections().get(0));
+			if(resultObject.isList()){
+				List<Object> resultList = resultObject.getZsonList();
+				
+			}
+			Object value = resultList.get(j);
+			za.process(this, value, pathList.get(j));
+		}
 		if(zPath.checkAbsolutePath()){
 			isSingleResult = true;
 		}
@@ -55,6 +65,9 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 			if(pathObject.isList()){
 				List<String> pathList = pathObject.getZsonList();
 				for (int j = 0; j < pathList.size(); j++) {
+					if(zPath.isRootPath() && zPath.isMatchPath(pathList.get(j))){
+						
+					}
 					if(zPath.isMatchPath(pathList.get(j))){
 						ZsonObject<Object> resultObject = new ZsonObject<Object>();
 						resultObject.objectConvert(zResultInfo.getCollections().get(i));
@@ -187,6 +200,12 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 	@Override
 	public Object getResult() {
 		return this.getResultByKey(ZsonUtils.BEGIN_KEY);
+	}
+
+	@Override
+	public void deleteValue(String path) {
+		ZsonDelete delete = new ZsonDelete();
+		this.resultHandle(delete, path, false);
 	}
 	
 }

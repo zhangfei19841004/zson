@@ -28,4 +28,6 @@ public interface ZsonResult{
 	public void addValue(String path, int index, String json);
 	
 	public void addValue(String path, String key, String json);
+	
+	public void deleteValue(String path);
 }
