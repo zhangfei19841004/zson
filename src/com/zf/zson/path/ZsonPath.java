@@ -3,10 +3,6 @@ package com.zf.zson.path;
 public class ZsonPath {
 	
 	private String path;
-	
-	private Integer index;
-	
-	private String key;
 
 	public ZsonPath(String path) {
 		this.path = path;
@@ -23,23 +19,7 @@ public class ZsonPath {
 	public void setPath(String path) {
 		this.path = path;
 	}
-
-	public Integer getIndex() {
-		return index;
-	}
-
-	public void setIndex(Integer index) {
-		this.index = index;
-	}
-
-	public String getKey() {
-		return key;
-	}
-
-	public void setKey(String key) {
-		this.key = key;
-	}
-
+	
 	public boolean checkAbsolutePath(){
 		if(this.isRootPath()){
 			return true;

@@ -3,6 +3,7 @@ package com.zf.zson.result.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.zf.zson.ZsonUtils;
 import com.zf.zson.result.ZsonAction;
 import com.zf.zson.result.ZsonResult;
 
@@ -23,6 +24,21 @@ public class ZsonRetrieve implements ZsonAction{
 	@Override
 	public int offset(ZsonResult zr, Object value) {
 		return 0;
+	}
+
+	@Override
+	public boolean before(ZsonResult zr) {
+		ZsonResultImpl zri = (ZsonResultImpl) zr;
+		if(zri.getzPath().isRootPath()){
+			result.add(zri.getZsonResultToString().toJsonString(zri.getResultByKey(ZsonUtils.BEGIN_KEY)));
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public boolean after(ZsonResult zr) {
+		return false;
 	}
 
 }

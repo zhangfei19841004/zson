@@ -29,7 +29,7 @@ public abstract class ZsonResultAbstract implements ZsonResult{
 	}
 	
 	protected abstract void checkValid();
-	
+
 	public ZsonResultInfo getzResultInfo() {
 		return zResultInfo;
 	}
