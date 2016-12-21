@@ -35,7 +35,7 @@ public class Demo {
 //		System.out.println(zr3.getValues("//new"));
 //		System.out.println(zr3.getValue(""));
 		zr3.deleteValue("//a");
-		System.out.println(zr3.getValue(""));
+		System.out.println(zr3.getValue("//e"));
 
 	}
 

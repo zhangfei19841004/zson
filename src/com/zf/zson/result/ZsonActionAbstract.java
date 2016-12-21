@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.zf.zson.ZsonUtils;
 import com.zf.zson.object.ZsonObject;
+import com.zf.zson.path.ZsonCurrentPath;
 import com.zf.zson.result.impl.ZsonResultImpl;
 
 public abstract class ZsonActionAbstract implements ZsonAction{
@@ -129,5 +130,56 @@ public abstract class ZsonActionAbstract implements ZsonAction{
 		source.getzResultInfo().getPath().addAll(deleteFromIndex, newResult.getzResultInfo().getPath());
 		source.getzResultInfo().getIndex().putAll(newResult.getzResultInfo().getIndex());
 		source.getzResultInfo().getCollections().addAll(deleteFromIndex, newResult.getzResultInfo().getCollections());
+	}
+	
+	protected ZsonCurrentPath setKeyOrIndexByPath(ZsonResultImpl zri, String path){
+		ZsonCurrentPath zcp = new ZsonCurrentPath();
+		List<Object> paths = zri.getzResultInfo().getPath();
+		for (Object pathObject : paths) {
+			ZsonObject<String> pathObj = new ZsonObject<String>();
+			pathObj.objectConvert(pathObject);
+			if(pathObj.isList()){
+				int index = 0;
+				for (String p : pathObj.getZsonList()) {
+					if(p.equals(path)){
+						zcp.setIndex(index);
+						return zcp;
+					}
+					index++;
+				}
+			}else if(pathObj.isMap()){
+				for (String k : pathObj.getZsonMap().keySet()) {
+					if(pathObj.getZsonMap().get(k).equals(path)){
+						zcp.setKey(k);
+						return zcp;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	protected String getKeyByPath(ZsonResultImpl zri, String path){
+		List<Object> paths = zri.getzResultInfo().getPath();
+		int index = 0;
+		for (Object pathObject : paths) {
+			ZsonObject<String> pathObj = new ZsonObject<String>();
+			pathObj.objectConvert(pathObject);
+			if(pathObj.isList()){
+				for (String p : pathObj.getZsonList()) {
+					if(p.equals(path)){
+						return zri.getzResultInfo().getLevel().get(index);
+					}
+				}
+			}else if(pathObj.isMap()){
+				for (String p : pathObj.getZsonMap().values()) {
+					if(p.equals(path)){
+						return zri.getzResultInfo().getLevel().get(index);
+					}
+				}
+			}
+			index++;
+		}
+		return null;
 	}
 }
