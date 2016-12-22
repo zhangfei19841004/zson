@@ -12,7 +12,7 @@ import com.zf.zson.result.ZsonResult;
 
 public class ZsonAdd extends ZsonActionAbstract{
 	
-	private String addJson;
+	private Object addJson;
 	
 	private String addKey;
 	
@@ -22,7 +22,7 @@ public class ZsonAdd extends ZsonActionAbstract{
 	
 	private List<String> handledPath = new ArrayList<String>();
 	
-	public void setAddJson(String addJson) {
+	public void setAddJson(Object addJson) {
 		this.addJson = addJson;
 	}
 
@@ -52,37 +52,26 @@ public class ZsonAdd extends ZsonActionAbstract{
 			Object addObj = null;
 			if(addIndex!=null && valueByKeyObj.isList()){
 				List<Object> pathValueList = valueByKeyObj.getZsonList();
-				Object actionValue = this.getAddObject(zri);
+				Object actionValue = this.getActionObject(zri, addJson);
 				pathValueList.add(addIndex, actionValue);
 				addRootPath = currentPath+"/*["+addIndex+"]";
 				addObj = pathValueList;
 				
 			}else if(addKey!=null && valueByKeyObj.isMap()){
 				Map<String, Object> pathValueMap = valueByKeyObj.getZsonMap();
-				Object actionValue = this.getAddObject(zri);
+				Object actionValue = this.getActionObject(zri, addJson);
 				pathValueMap.put(addKey, actionValue);
 				addRootPath = currentPath+"/"+addKey;
 				addObj = pathValueMap;
 			}
 			handledPath.add(currentPath);
 			handledPath.add(addRootPath);
-			ZsonResultImpl zrNew = (ZsonResultImpl) zri.parseJsonToZson(ZSON.toJsonString(addObj));
+			ZsonResultImpl zrNew = (ZsonResultImpl) ZSON.parseJson(ZSON.toJsonString(addObj));
 			this.deleteZsonResultInfoChilrenKey(zri, key);
 			this.replaceZsonResultInfoKey(zrNew, key, currentPath, handledPath, addRootPath);
 			this.addNewResultToSourceResult(zri, zrNew);
 			this.recorrectIndex(zri);
 		}
-	}
-	
-	private Object getAddObject(ZsonResultImpl zri){
-		Object actionValue = addJson;
-		try{
-			ZsonResultImpl zra = (ZsonResultImpl) zri.parseJsonToZson(addJson);
-			actionValue = zra.getResultByKey(ZsonUtils.BEGIN_KEY);
-		}catch(Exception e){
-			
-		}
-		return actionValue;
 	}
 
 	@Override
@@ -101,17 +90,17 @@ public class ZsonAdd extends ZsonActionAbstract{
 				Object addObj = null;
 				if(addIndex!=null && valueByKeyObj.isList()){
 					List<Object> pathValueList = valueByKeyObj.getZsonList();
-					Object actionValue = this.getAddObject(zri);
+					Object actionValue = this.getActionObject(zri, addJson);
 					pathValueList.add(addIndex, actionValue);
 					addObj = pathValueList;
 					
 				}else if(addKey!=null && valueByKeyObj.isMap()){
 					Map<String, Object> pathValueMap = valueByKeyObj.getZsonMap();
-					Object actionValue = this.getAddObject(zri);
+					Object actionValue = this.getActionObject(zri, addJson);
 					pathValueMap.put(addKey, actionValue);
 					addObj = pathValueMap;
 				}
-				ZsonResultImpl zrNew = (ZsonResultImpl) zri.parseJsonToZson(zri.getZsonResultToString().toJsonString(addObj));
+				ZsonResultImpl zrNew = (ZsonResultImpl) ZSON.parseJson(zri.getZsonResultToString().toJsonString(addObj));
 				zri.getzResultInfo().setCollections(zrNew.getzResultInfo().getCollections());
 				zri.getzResultInfo().setIndex(zrNew.getzResultInfo().getIndex());
 				zri.getzResultInfo().setLevel(zrNew.getzResultInfo().getLevel());

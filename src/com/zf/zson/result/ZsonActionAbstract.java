@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.zf.zson.ZSON;
 import com.zf.zson.ZsonUtils;
 import com.zf.zson.object.ZsonObject;
 import com.zf.zson.path.ZsonCurrentPath;
@@ -181,5 +182,21 @@ public abstract class ZsonActionAbstract implements ZsonAction{
 			index++;
 		}
 		return null;
+	}
+	
+	protected String getParentPath(String currentPath){
+		String parentPath = currentPath.substring(0,currentPath.lastIndexOf('/'));
+		return parentPath;
+	}
+	
+	protected Object getActionObject(ZsonResultImpl zri, Object str){
+		Object actionValue = str;
+		try{
+			ZsonResultImpl zra = (ZsonResultImpl) ZSON.parseJson(str.toString());
+			actionValue = zra.getResultByKey(ZsonUtils.BEGIN_KEY);
+		}catch(Exception e){
+			
+		}
+		return actionValue;
 	}
 }

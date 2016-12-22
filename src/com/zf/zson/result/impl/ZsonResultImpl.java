@@ -175,7 +175,7 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 	}
 
 	@Override
-	public void addValue(String path, int index, String json) {
+	public void addValue(String path, int index, Object json) {
 		ZsonAdd add = new ZsonAdd();
 		add.setAddIndex(index);
 		add.setAddJson(json);
@@ -183,7 +183,7 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 	}
 
 	@Override
-	public void addValue(String path, String key, String json) {
+	public void addValue(String path, String key, Object json) {
 		ZsonAdd add = new ZsonAdd();
 		add.setAddKey(key);
 		add.setAddJson(json);
@@ -199,6 +199,13 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 	public void deleteValue(String path) {
 		ZsonDelete delete = new ZsonDelete();
 		this.resultHandle(delete, path, false);
+	}
+
+	@Override
+	public void updateValue(String path, Object json) {
+		ZsonUpdate update = new ZsonUpdate();
+		update.setUpdateJson(json);
+		this.resultHandle(update, path, false);
 	}
 	
 }

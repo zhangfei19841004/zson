@@ -5,7 +5,6 @@ import java.util.Map;
 
 import com.zf.zson.ZsonUtils;
 import com.zf.zson.object.ZsonObject;
-import com.zf.zson.parse.ZsonParse;
 import com.zf.zson.path.ZsonPath;
 import com.zf.zson.result.info.ZsonResultInfo;
 import com.zf.zson.result.utils.ZsonResultRestore;
@@ -83,8 +82,8 @@ public abstract class ZsonResultAbstract implements ZsonResult{
 		return zsonResultRestore.restoreObject(obj);
 	}
 	
-	public ZsonResult parseJsonToZson(String json){
+	/*public ZsonResult parseJsonToZson(String json){
 		ZsonParse zp = new ZsonParse(json);
 		return zp.fromJson();
-	}
+	}*/
 }

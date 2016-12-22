@@ -30,12 +30,13 @@ public class Demo {
 		
 		//System.out.println(ZSON.parseJson(s2).addValue("/*[1]", "{\"a\":1}"));
 		System.out.println(s3);
-//		zr3.addValue("//a", 1,"new");
-//		zr3.addValue("", "new","{\"a\":12}");
-//		System.out.println(zr3.getValues("//new"));
-//		System.out.println(zr3.getValue(""));
-		zr3.deleteValue("//a");
-		System.out.println(zr3.getValue("//e"));
+		zr3.addValue("//a", 1,"new");
+		zr3.addValue("", "new","{\"a\":12}");
+		System.out.println(zr3.getValues("//new"));
+		System.out.println(zr3.getValue(""));
+		zr3.deleteValue("//a2");
+		zr3.updateValue("//a", 3);
+		System.out.println(zr3.getValue(""));
 
 	}
 
