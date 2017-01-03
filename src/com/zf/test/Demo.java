@@ -36,7 +36,7 @@ public class Demo {
 		System.out.println(zr3.getValue(""));
 		zr3.deleteValue("//a2");
 		zr3.updateValue("//a", 3);
-		System.out.println(zr3.getValue(""));
+		System.out.println(zr3.getValue());
 
 	}
 

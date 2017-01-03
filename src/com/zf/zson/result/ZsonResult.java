@@ -11,6 +11,8 @@ public interface ZsonResult{
 	
 	public Object getValue(String path);
 	
+	public Object getValue();
+	
 	public List<Object> getValues(String path);
 	
 	public String getString(String path);
@@ -28,6 +30,10 @@ public interface ZsonResult{
 	public void addValue(String path, int index, Object json);
 	
 	public void addValue(String path, String key, Object json);
+	
+	public void addValue(int index, Object json);
+	
+	public void addValue(String key, Object json);
 	
 	public void deleteValue(String path);
 	

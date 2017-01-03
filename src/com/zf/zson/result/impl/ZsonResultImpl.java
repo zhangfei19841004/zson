@@ -107,6 +107,13 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 		return zre.getResult().get(0);
 	}
 	
+	@Override
+	public Object getValue() {
+		ZsonRetrieve zre = new ZsonRetrieve();
+		this.resultHandle(zre, "", true);
+		return zre.getResult().get(0);
+	}
+	
 	public List<Object> getValues(String path){
 		ZsonRetrieve zre = new ZsonRetrieve();
 		this.resultHandle(zre, path, false);
@@ -188,6 +195,22 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 		add.setAddKey(key);
 		add.setAddJson(json);
 		this.resultHandle(add, path, false);
+	}
+	
+	@Override
+	public void addValue(int index, Object json) {
+		ZsonAdd add = new ZsonAdd();
+		add.setAddIndex(index);
+		add.setAddJson(json);
+		this.resultHandle(add, "", false);
+	}
+
+	@Override
+	public void addValue(String key, Object json) {
+		ZsonAdd add = new ZsonAdd();
+		add.setAddKey(key);
+		add.setAddJson(json);
+		this.resultHandle(add, "", false);
 	}
 
 	@Override
