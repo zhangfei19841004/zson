@@ -1,7 +1,7 @@
 package com.zf.zson.result.info;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +24,7 @@ public class ZsonResultInfo {
 	 * status有0，1，0表示没有解析完成，1表示已解析完成
 	 * index指对象在collections中的index
 	 */
-	private Map<String, Map<String, Integer>> index = new HashMap<String, Map<String, Integer>>();
+	private Map<String, Map<String, Integer>> index = new LinkedHashMap<String, Map<String, Integer>>();
 	
 	/**
 	 * 标识json解析是否全部解析完成

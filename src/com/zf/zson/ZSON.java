@@ -2,7 +2,7 @@ package com.zf.zson;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -164,7 +164,7 @@ public class ZSON {
 				elementObj.objectConvert(zResultInfo.getCollections().get(pElement.get(ZsonUtils.INDEX)));
 				if(isMap){
 					Map<String, Object> elementMap = elementObj.getZsonMap();
-					Map<String, String> temp = new HashMap<String, String>();
+					Map<String, String> temp = new LinkedHashMap<String, String>();
 					temp.put(ZsonUtils.LINK, key);
 					elementMap.put(this.getElementInstance(element).toString(), temp);
 				}else{
@@ -183,8 +183,8 @@ public class ZSON {
 		private String addZsonResultInfo(int type){
 			Object pathObj = null;
 			if(type==0){
-				zResultInfo.getCollections().add(new HashMap<String, Object>());
-				pathObj = new HashMap<String, Object>();
+				zResultInfo.getCollections().add(new LinkedHashMap<String, Object>());
+				pathObj = new LinkedHashMap<String, Object>();
 			}else if(type==1){
 				zResultInfo.getCollections().add(new ArrayList<Object>());
 				pathObj = new ArrayList<Object>();
@@ -199,7 +199,7 @@ public class ZSON {
 			}
 			zResultInfo.getLevel().add(key);
 			zResultInfo.getPath().add(pathObj);
-			Map<String, Integer> objMap = new HashMap<String, Integer>();
+			Map<String, Integer> objMap = new LinkedHashMap<String, Integer>();
 			objMap.put(ZsonUtils.TYPE, type);
 			objMap.put(ZsonUtils.STATUS, status);
 			objMap.put(ZsonUtils.INDEX, index);

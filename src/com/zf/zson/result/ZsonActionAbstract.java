@@ -1,7 +1,7 @@
 package com.zf.zson.result;
 
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +38,7 @@ public abstract class ZsonActionAbstract implements ZsonAction{
 	
 	protected void replaceZsonResultInfoKey(ZsonResultImpl zrNew, String targetKey, String parentPath, List<String> handledPath, String addRootPath){
 		List<String> levels = zrNew.getzResultInfo().getLevel();
-		Map<String, Map<String, Integer>> newIndex = new HashMap<String, Map<String, Integer>>();
+		Map<String, Map<String, Integer>> newIndex = new LinkedHashMap<String, Map<String, Integer>>();
 		for (int i = 0; i < levels.size(); i++) {
 			String key = levels.get(i);
 			String newLevel = targetKey+levels.get(i).substring(1);
