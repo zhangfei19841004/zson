@@ -4,6 +4,12 @@
 
 为了解决测试人员在Java对json解析的困惑，zson就应运而生了。因为我本人做过UI自动化测试，对XPATH有一定的了解，所以zson对json的操作中加入了一个类似于xpath的路径的概念，即利用一个路径来操作json串。如果一个json串有非常复杂的层级关系，如果想获取最里面的某个key的值，正常情况下那就得一层一层的解析进去，非常的繁琐，如果用zson，只需要一句代码，给定一个路径（值得注意的是，也可以是相对路径哦），就可以获取到对应的值，这样可以大大的提高生产力。
 
+作者联系方式
+===
+
+QQ：408129370
+QQ群：536192476
+
 使用场景
 ===
 设定一个json串：
@@ -45,6 +51,45 @@ zr.deleteValue("//date");
 ZsonResult zr = ZSON.parseJson(json);
 zr.addValue("/data",2,"{\"id\":3,\"name\":\"test2\",\"date\":\"2017-01-09 14:30:00\"}");
 ```
+
+选择器path说明
+===
+
+示例一:
+
+```
+[
+    {
+        "firstName": "Eric",
+        "lastName": "Clapton",
+        "instrument": "guitar"
+    },
+    {
+        "firstName": "Sergei",
+        "lastName": "Rachmaninoff",
+        "instrument": "piano"
+    }
+]
+```
+
+>     找出第二个firstName: /*[1]/firstName 
+>     输出:Sergei
+***
+>     找出第一个Map: /*[0]  
+>     输出:{"firstName": "Eric","lastName": "Clapton","instrument": "guitar"}
+
+
+示例二:
+
+`{"a":["a"],"cb":{"a":1},"d":["a",{"a":[1,2]},{"a":2},""],"e":"b"}`
+
+>     路径: /d/*[1]/a 
+>     输出:[1,2]
+***
+>     路径: /d/*[1]/a/*[0]
+>     输出:1
+
+***
 
 zson
 ===
@@ -156,46 +201,6 @@ List<Object> getList(String path) //返回一个List对象
 
 String toJsonString(Object obj) //将Map或List转换成为JSON字符串
 ```
-
-***
-
-####选择器path说明
-
-示例一:
-
-```
-[
-    {
-        "firstName": "Eric",
-        "lastName": "Clapton",
-        "instrument": "guitar"
-    },
-    {
-        "firstName": "Sergei",
-        "lastName": "Rachmaninoff",
-        "instrument": "piano"
-    }
-]
-```
-
->     找出第二个firstName: /*[1]/firstName 
->     输出:Sergei
-***
->     找出第一个Map: /*[0]  
->     输出:{"firstName": "Eric","lastName": "Clapton","instrument": "guitar"}
-
-
-示例二:
-
-`{"a":["a"],"cb":{"a":1},"d":["a",{"a":[1,2]},{"a":2},""],"e":"b"}`
-
->     路径: /d/*[1]/a 
->     输出:[1,2]
-***
->     路径: /d/*[1]/a/*[0]
->     输出:1
-
-***
 
 ####2016年4月16日更新日志
 
