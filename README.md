@@ -113,20 +113,6 @@ zson
 
 ####实现思路
 
-当然，有很多很好的JSON解析的JAR包，比如JSONOBJECT,GSON，甚至也有为我们测试人员而打造的JSONPATH，但我还是自已实现了一下（之前也实现过，现在属于重构）。其主要特点是用一个类似于xpath的选择器来获取相应的值。
-
-***
-
-####特点
-
-+ 无需层层解析
-+ 根据给定的路径(类XPATH路径)来获取相应的值
-+ 支持相对路径
-
-***
-
-####实现思路
-
 思想是这样的，以这个JSON串为例(我自已随手写的)：
 
 ```
@@ -207,7 +193,7 @@ Zson z = new Zson(); //new一个Zson对象
 ZsonResult zr = z.parseJson(j); //解析JSON字符串后，得到一个ZsonResult对象
 ```
 
->     zr对象可用的方法:
+>	zr对象可用的方法:
 
 ```
 Object getValue(String path) //返回一个除了List或Map的Object对象，如果是List或Map，会转换成为JSON字符串返回
