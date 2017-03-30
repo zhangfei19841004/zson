@@ -1,5 +1,6 @@
 package com.zf.zson.result;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -86,4 +87,18 @@ public abstract class ZsonResultAbstract implements ZsonResult{
 		ZsonParse zp = new ZsonParse(json);
 		return zp.fromJson();
 	}*/
+	
+	public List<String> getPaths(){
+		List<String> list = new ArrayList<String>();
+		for (Object pathObj : zResultInfo.getPath()) {
+			ZsonObject<String> zo = new ZsonObject<String>();
+			zo.objectConvert(pathObj);
+			if(zo.isMap()){
+				list.addAll(zo.getZsonMap().values());
+			}else{
+				list.addAll(zo.getZsonList());
+			}
+		}
+		return list;
+	}
 }

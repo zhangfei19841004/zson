@@ -38,4 +38,6 @@ public interface ZsonResult{
 	public void deleteValue(String path);
 	
 	public void updateValue(String path, Object json);
+	
+	public List<String> getPaths();
 }
