@@ -39,6 +39,7 @@ public class ZSON {
 			try{
 				int lastUNFIndex = this.getLatestUNFinishedLevelIndex();
 				Map<String, Integer> elementStatus = zResultInfo.getIndex().get(zResultInfo.getLevel().get(lastUNFIndex));
+				Object classType = null;
 				if(elementStatus.get(ZsonUtils.TYPE)!=type){
 					zResultInfo.setValid(false);
 					throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
@@ -49,7 +50,9 @@ public class ZSON {
 					if(type==1){
 						List<Object> elementList = eObj.getZsonList();
 						if(!(elementList.size()==0 && element.equals("") && isFinished)){
-							elementList.add(this.getElementInstance(element));
+							Object temp = this.getElementInstance(element);
+							elementList.add(temp);
+							classType = temp.getClass();
 						}
 					}else{
 						Map<String, Object> elementMap = eObj.getZsonMap();
@@ -58,11 +61,14 @@ public class ZSON {
 								zResultInfo.setValid(false);
 								throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 							}
-							elementMap.put(this.getElementInstance(element).toString(), this.getElementInstance(v));
+							Object temp = this.getElementInstance(v);
+							elementMap.put(this.getElementInstance(element).toString(), temp);
+							classType = temp.getClass();
 						}
 					}
 				}
 				this.setElementPath(type, lastUNFIndex, element);
+				this.setElementClassType(type, lastUNFIndex, element, classType);
 				if(isFinished){
 					elementStatus.put(ZsonUtils.STATUS, 1);
 				}
@@ -83,6 +89,18 @@ public class ZSON {
 				Map<String, String> pathObjMap = pathObj.getZsonMap();
 				String path = this.getParentPath(zResultInfo.getLevel().get(index))+"/"+this.getElementInstance(element).toString();
 				pathObjMap.put(this.getElementInstance(element).toString(), path);
+			}
+		}
+		
+		private void setElementClassType(int type, int index, String element, Object classType){
+			ZsonObject<Object> classTypeObj = new ZsonObject<Object>();
+			classTypeObj.objectConvert(zResultInfo.getClassTypes().get(index));
+			if(type==1){
+				List<Object> classTypeObjList = classTypeObj.getZsonList();
+				classTypeObjList.add(classType);
+			}else{
+				Map<String, Object> classTypeObjMap = classTypeObj.getZsonMap();
+				classTypeObjMap.put(this.getElementInstance(element).toString(), classType);
 			}
 		}
 		
@@ -162,18 +180,22 @@ public class ZSON {
 				}
 				ZsonObject<Object> elementObj = new ZsonObject<Object>();
 				elementObj.objectConvert(zResultInfo.getCollections().get(pElement.get(ZsonUtils.INDEX)));
+				Object classType = null;
 				if(isMap){
 					Map<String, Object> elementMap = elementObj.getZsonMap();
 					Map<String, String> temp = new LinkedHashMap<String, String>();
 					temp.put(ZsonUtils.LINK, key);
 					elementMap.put(this.getElementInstance(element).toString(), temp);
+					classType = temp.getClass();
 				}else{
 					List<Object> elementList = elementObj.getZsonList();
 					List<String> temp = new ArrayList<String>();
 					temp.add(key);
 					elementList.add(temp);
+					classType = temp.getClass();
 				}
 				this.setElementPath(pElement.get(ZsonUtils.TYPE), this.getIndexInfoByKey(pKey).get(ZsonUtils.INDEX), element);
+				this.setElementClassType(pElement.get(ZsonUtils.TYPE), this.getIndexInfoByKey(pKey).get(ZsonUtils.INDEX), element, classType);
 			}catch(Exception e){
 				zResultInfo.setValid(false);
 				throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
@@ -182,12 +204,15 @@ public class ZSON {
 		
 		private String addZsonResultInfo(int type){
 			Object pathObj = null;
+			Object classTypeObj = null;
 			if(type==0){
 				zResultInfo.getCollections().add(new LinkedHashMap<String, Object>());
 				pathObj = new LinkedHashMap<String, Object>();
+				classTypeObj = new LinkedHashMap<String, Object>();
 			}else if(type==1){
 				zResultInfo.getCollections().add(new ArrayList<Object>());
 				pathObj = new ArrayList<Object>();
+				classTypeObj = new ArrayList<Object>();
 			}
 			int status = 0;
 			int index = 0;
@@ -199,6 +224,7 @@ public class ZSON {
 			}
 			zResultInfo.getLevel().add(key);
 			zResultInfo.getPath().add(pathObj);
+			zResultInfo.getClassTypes().add(classTypeObj);
 			Map<String, Integer> objMap = new LinkedHashMap<String, Integer>();
 			objMap.put(ZsonUtils.TYPE, type);
 			objMap.put(ZsonUtils.STATUS, status);

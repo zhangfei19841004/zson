@@ -40,6 +40,11 @@ public class ZsonResultInfo {
 	 * 存放JSON的path
 	 */
 	private List<Object> path = new ArrayList<Object>();
+	
+	/**
+	 * 存放JSON的数据类型
+	 */
+	private List<Object> classTypes = new ArrayList<Object>();
 
 	public boolean isValid() {
 		return valid;
@@ -87,6 +92,14 @@ public class ZsonResultInfo {
 
 	public void setPath(List<Object> path) {
 		this.path = path;
+	}
+
+	public List<Object> getClassTypes() {
+		return classTypes;
+	}
+
+	public void setClassTypes(List<Object> classTypes) {
+		this.classTypes = classTypes;
 	}
 	
 }
