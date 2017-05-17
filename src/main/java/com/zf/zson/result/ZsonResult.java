@@ -1,6 +1,7 @@
 package com.zf.zson.result;
 
 import java.util.List;
+import java.util.Map;
 
 
 public interface ZsonResult{
@@ -40,4 +41,6 @@ public interface ZsonResult{
 	public void updateValue(String path, Object json);
 	
 	public List<String> getPaths();
+	
+	public Map<String, Class<?>> getClassTypes();
 }

@@ -14,6 +14,7 @@ public class ZsonInfo {
 	
 	private int markIndex = 0;// 标识有多少个"
 	
+	private boolean needClassType = false;
 
 	public String getElement() {
 		return element;
@@ -61,6 +62,14 @@ public class ZsonInfo {
 
 	public void setElementSeparate(boolean isElementSeparate) {
 		this.isElementSeparate = isElementSeparate;
+	}
+
+	public boolean isNeedClassType() {
+		return needClassType;
+	}
+
+	public void setNeedClassType(boolean needClassType) {
+		this.needClassType = needClassType;
 	}
 	
 }

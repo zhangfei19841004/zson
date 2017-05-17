@@ -81,14 +81,16 @@ public class ZSON {
 		private void setElementPath(int type, int index, String element){
 			ZsonObject<String> pathObj = new ZsonObject<String>();
 			pathObj.objectConvert(zResultInfo.getPath().get(index));
+			String parentPath = this.getParentPath(zResultInfo.getLevel().get(index));
 			if(type==1){
 				List<String> pathObjList = pathObj.getZsonList();
-				String path = this.getParentPath(zResultInfo.getLevel().get(index))+"/*["+pathObjList.size()+"]";
+				String path = parentPath+"/*["+pathObjList.size()+"]";
 				pathObjList.add(path);
 			}else{
 				Map<String, String> pathObjMap = pathObj.getZsonMap();
-				String path = this.getParentPath(zResultInfo.getLevel().get(index))+"/"+this.getElementInstance(element).toString();
-				pathObjMap.put(this.getElementInstance(element).toString(), path);
+				String pathKey = this.getElementInstance(element).toString();
+				String path = parentPath+"/"+pathKey;
+				pathObjMap.put(pathKey, path);
 			}
 		}
 		
@@ -170,32 +172,30 @@ public class ZSON {
 			}
 		}
 		
-		private void addToParent(String element, boolean isMap, String key){
+		private void addToParent(ZsonInfo zinfo, String key){
 			try{
 				String pKey = key.substring(0, key.lastIndexOf('.'));
 				Map<String, Integer> pElement = this.getIndexInfoByKey(pKey);
-				if(isMap && pElement.get(ZsonUtils.TYPE)==1){
+				if(zinfo.isMap() && pElement.get(ZsonUtils.TYPE)==1){
 					zResultInfo.setValid(false);
 					throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 				}
 				ZsonObject<Object> elementObj = new ZsonObject<Object>();
 				elementObj.objectConvert(zResultInfo.getCollections().get(pElement.get(ZsonUtils.INDEX)));
-				Object classType = null;
-				if(isMap){
+				if(zinfo.isMap()){
 					Map<String, Object> elementMap = elementObj.getZsonMap();
 					Map<String, String> temp = new LinkedHashMap<String, String>();
 					temp.put(ZsonUtils.LINK, key);
-					elementMap.put(this.getElementInstance(element).toString(), temp);
-					classType = temp.getClass();
+					elementMap.put(this.getElementInstance(zinfo.getElement()).toString(), temp);
 				}else{
 					List<Object> elementList = elementObj.getZsonList();
 					List<String> temp = new ArrayList<String>();
 					temp.add(key);
 					elementList.add(temp);
-					classType = temp.getClass();
 				}
-				this.setElementPath(pElement.get(ZsonUtils.TYPE), this.getIndexInfoByKey(pKey).get(ZsonUtils.INDEX), element);
-				this.setElementClassType(pElement.get(ZsonUtils.TYPE), this.getIndexInfoByKey(pKey).get(ZsonUtils.INDEX), element, classType);
+				this.setElementPath(pElement.get(ZsonUtils.TYPE), pElement.get(ZsonUtils.INDEX), zinfo.getElement());
+				Map<String, Integer> cElement = this.getIndexInfoByKey(key);
+				this.setElementClassType(pElement.get(ZsonUtils.TYPE), pElement.get(ZsonUtils.INDEX), zinfo.getElement(), cElement.get(ZsonUtils.TYPE)==0?Map.class:List.class);
 			}catch(Exception e){
 				zResultInfo.setValid(false);
 				throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
@@ -328,7 +328,7 @@ public class ZSON {
 		private void handleListBegin(ZsonInfo zinfo){
 			String key = this.addZsonResultInfo(1);
 			if(!ZsonUtils.BEGIN_KEY.equals(key)){
-				this.addToParent(zinfo.getElement(), zinfo.isMap(), key);
+				this.addToParent(zinfo, key);
 				zinfo.setElement(null);
 				zinfo.setMap(false);
 				zinfo.setElementSeparate(false);
@@ -338,7 +338,7 @@ public class ZSON {
 		private void handleMapBegin(ZsonInfo zinfo){
 			String key = this.addZsonResultInfo(0);
 			if(!ZsonUtils.BEGIN_KEY.equals(key)){
-				this.addToParent(zinfo.getElement(), zinfo.isMap(), key);
+				this.addToParent(zinfo, key);
 				zinfo.setElement(null);
 				zinfo.setMap(false);
 				zinfo.setElementSeparate(false);

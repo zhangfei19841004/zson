@@ -1,6 +1,7 @@
 package com.zf.zson.result;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -100,5 +101,26 @@ public abstract class ZsonResultAbstract implements ZsonResult{
 			}
 		}
 		return list;
+	}
+	
+	@Override
+	public Map<String, Class<?>> getClassTypes() {
+		Map<String, Class<?>> classTypes = new LinkedHashMap<String, Class<?>>();
+		for (int i = 0; i < zResultInfo.getPath().size(); i++) {
+			ZsonObject<String> zoPath = new ZsonObject<String>();
+			zoPath.objectConvert(zResultInfo.getPath().get(i));
+			ZsonObject<Class<?>> zoClass = new ZsonObject<Class<?>>();
+			zoClass.objectConvert(zResultInfo.getClassTypes().get(i));
+			if(zoPath.isMap()){
+				for (String key : zoPath.getZsonMap().keySet()) {
+					classTypes.put(zoPath.getZsonMap().get(key), zoClass.getZsonMap().get(key));
+				}
+			}else{
+				for (int j = 0; j < zoPath.getZsonList().size(); j++) {
+					classTypes.put(zoPath.getZsonList().get(j), zoClass.getZsonList().get(j));
+				}
+			}
+		}
+		return classTypes;
 	}
 }
