@@ -38,7 +38,7 @@ public class Demo {
 		zr3.deleteValue("//a2");
 		zr3.updateValue("//a", 3);
 		System.out.println(zr3.getValue());
-
+		
 	}
 
 }

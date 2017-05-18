@@ -28,6 +28,7 @@ public abstract class ZsonActionAbstract implements ZsonAction{
 				}
 				it.remove();
 				zri.getzResultInfo().getPath().remove(index);
+				zri.getzResultInfo().getClassTypes().remove(index);
 				zri.getzResultInfo().getIndex().remove(level);
 				zri.getzResultInfo().getCollections().remove(index);
 				index--;
@@ -129,6 +130,7 @@ public abstract class ZsonActionAbstract implements ZsonAction{
 	protected void addNewResultToSourceResult(ZsonResultImpl source, ZsonResultImpl newResult){
 		source.getzResultInfo().getLevel().addAll(deleteFromIndex, newResult.getzResultInfo().getLevel());
 		source.getzResultInfo().getPath().addAll(deleteFromIndex, newResult.getzResultInfo().getPath());
+		source.getzResultInfo().getClassTypes().addAll(deleteFromIndex, newResult.getzResultInfo().getClassTypes());
 		source.getzResultInfo().getIndex().putAll(newResult.getzResultInfo().getIndex());
 		source.getzResultInfo().getCollections().addAll(deleteFromIndex, newResult.getzResultInfo().getCollections());
 	}

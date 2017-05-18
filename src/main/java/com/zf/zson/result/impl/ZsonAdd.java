@@ -104,6 +104,7 @@ public class ZsonAdd extends ZsonActionAbstract{
 				zri.getzResultInfo().setIndex(zrNew.getzResultInfo().getIndex());
 				zri.getzResultInfo().setLevel(zrNew.getzResultInfo().getLevel());
 				zri.getzResultInfo().setPath(zrNew.getzResultInfo().getPath());
+				zri.getzResultInfo().setClassTypes(zrNew.getzResultInfo().getClassTypes());
 			}
 			return false;
 		}
