@@ -278,7 +278,7 @@ public class ZSON {
 		
 		private Object getElementInstance(String element){
 			try{
-				if(element.matches("\"(.*\\n*){0,}\"")){
+				if(element.startsWith("\"") && element.endsWith("\"")){
 					return element.substring(1,element.length()-1);
 				}else if(element.matches("\\d+")){
 					return Long.valueOf(element);
@@ -307,7 +307,7 @@ public class ZSON {
 		}
 		
 		private boolean isValidElement(String element){
-			if(element.matches("\"(.*\\n*){0,}\"")){
+			if(element.startsWith("\"") && element.endsWith("\"")){
 				return true;
 			}else if(element.matches("\\d+")){
 				return true;
@@ -497,5 +497,4 @@ public class ZSON {
 		}
 		
 	}
-	
 }
