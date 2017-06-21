@@ -52,7 +52,9 @@ public class ZSON {
 						if(!(elementList.size()==0 && element.equals("") && isFinished)){
 							Object temp = this.getElementInstance(element);
 							elementList.add(temp);
-							classType = temp.getClass();
+							if(temp!=null){
+								classType = temp.getClass();
+							}
 						}
 					}else{
 						Map<String, Object> elementMap = eObj.getZsonMap();
@@ -63,7 +65,9 @@ public class ZSON {
 							}
 							Object temp = this.getElementInstance(v);
 							elementMap.put(this.getElementInstance(element).toString(), temp);
-							classType = temp.getClass();
+							if(temp!=null){
+								classType = temp.getClass();
+							}
 						}
 					}
 				}
@@ -73,6 +77,7 @@ public class ZSON {
 					elementStatus.put(ZsonUtils.STATUS, 1);
 				}
 			}catch(Exception e){
+				e.printStackTrace();
 				zResultInfo.setValid(false);
 				throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 			}
