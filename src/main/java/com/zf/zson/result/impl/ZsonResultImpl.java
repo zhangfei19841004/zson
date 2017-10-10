@@ -1,20 +1,20 @@
 package com.zf.zson.result.impl;
 
-import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import com.zf.zson.ZsonUtils;
 import com.zf.zson.object.ZsonObject;
 import com.zf.zson.result.ZsonAction;
 import com.zf.zson.result.ZsonResultAbstract;
 
+import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 public class ZsonResultImpl extends ZsonResultAbstract{
 	
 	public boolean isValid(){
 		if(!zResultInfo.isValid() || zResultInfo.getCollections().size()==0){
-			return zResultInfo.isValid();
+			return false;
 		}
 		if(!zResultInfo.isAllFinished()){
 			Collection<Map<String, Integer>> values = zResultInfo.getIndex().values();
@@ -123,8 +123,8 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 	@Override
 	public int getInteger(String path) {
 		Object obj = this.getValue(path);
-		if(obj instanceof Long){
-			return new Long((Long)obj).intValue();
+		if(obj instanceof BigDecimal){
+			return ((BigDecimal)obj).intValue();
 		}else{
 			throw new RuntimeException("can not get int with path: "+path);
 		}
@@ -133,8 +133,8 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 	@Override
 	public long getLong(String path) {
 		Object obj = this.getValue(path);
-		if(obj instanceof Long){
-			return (Long) obj;
+		if(obj instanceof BigDecimal){
+			return ((BigDecimal)obj).longValue();
 		}else{
 			throw new RuntimeException("can not get long with path: "+path);
 		}
@@ -144,8 +144,7 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 	public double getDouble(String path) {
 		Object obj = this.getValue(path);
 		if(obj instanceof BigDecimal){
-			BigDecimal bigDecimal = (BigDecimal)obj;
-			return bigDecimal.doubleValue();
+			return ((BigDecimal)obj).doubleValue();
 		}else{
 			throw new RuntimeException("can not get double with path: "+path);
 		}

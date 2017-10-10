@@ -1,17 +1,17 @@
 package com.zf.zson;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.zf.zson.object.ZsonObject;
 import com.zf.zson.parse.ZsonInfo;
 import com.zf.zson.result.ZsonResult;
 import com.zf.zson.result.impl.ZsonResultImpl;
 import com.zf.zson.result.info.ZsonResultInfo;
 import com.zf.zson.result.utils.ZsonResultToString;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ZSON {
 	
@@ -41,7 +41,6 @@ public class ZSON {
 				Map<String, Integer> elementStatus = zResultInfo.getIndex().get(zResultInfo.getLevel().get(lastUNFIndex));
 				Object classType = null;
 				if(elementStatus.get(ZsonUtils.TYPE)!=type){
-					zResultInfo.setValid(false);
 					throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 				}else{
 					Object elementObj = zResultInfo.getCollections().get(elementStatus.get(ZsonUtils.INDEX));
@@ -59,10 +58,6 @@ public class ZSON {
 					}else{
 						Map<String, Object> elementMap = eObj.getZsonMap();
 						if(!(elementMap.size()==0 && element.equals("") && v.equals("") && isFinished)){
-							if(!this.isValidElement(v)){
-								zResultInfo.setValid(false);
-								throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
-							}
 							Object temp = this.getElementInstance(v);
 							elementMap.put(this.getElementInstance(element).toString(), temp);
 							if(temp!=null){
@@ -77,8 +72,6 @@ public class ZSON {
 					elementStatus.put(ZsonUtils.STATUS, 1);
 				}
 			}catch(Exception e){
-				e.printStackTrace();
-				zResultInfo.setValid(false);
 				throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 			}
 		}
@@ -156,14 +149,13 @@ public class ZSON {
 			}
 			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 		}
-		
+
 		private void setLatestUNFinishedToFinished(){
 			try{
 				int lastUNFIndex = this.getLatestUNFinishedLevelIndex();
 				Map<String, Integer> elementStatus = zResultInfo.getIndex().get(zResultInfo.getLevel().get(lastUNFIndex));
 				elementStatus.put(ZsonUtils.STATUS, 1);
 			}catch(Exception e){
-				zResultInfo.setValid(false);
 				throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 			}
 		}
@@ -172,7 +164,6 @@ public class ZSON {
 			if(zResultInfo.getIndex().containsKey(key)){
 				return zResultInfo.getIndex().get(key);
 			}else{
-				zResultInfo.setValid(false);
 				throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 			}
 		}
@@ -182,7 +173,6 @@ public class ZSON {
 				String pKey = key.substring(0, key.lastIndexOf('.'));
 				Map<String, Integer> pElement = this.getIndexInfoByKey(pKey);
 				if(zinfo.isMap() && pElement.get(ZsonUtils.TYPE)==1){
-					zResultInfo.setValid(false);
 					throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 				}
 				ZsonObject<Object> elementObj = new ZsonObject<Object>();
@@ -202,7 +192,6 @@ public class ZSON {
 				Map<String, Integer> cElement = this.getIndexInfoByKey(key);
 				this.setElementClassType(pElement.get(ZsonUtils.TYPE), pElement.get(ZsonUtils.INDEX), zinfo.getElement(), cElement.get(ZsonUtils.TYPE)==0?Map.class:List.class);
 			}catch(Exception e){
-				zResultInfo.setValid(false);
 				throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 			}
 		}
@@ -280,53 +269,17 @@ public class ZSON {
 			try{
 				if(element.startsWith("\"") && element.endsWith("\"")){
 					return element.substring(1,element.length()-1);
-				}else if(element.matches("\\d+")){
-					return Long.valueOf(element);
-				}else if(element.matches("\\-\\d+")){
-					return Long.valueOf(element);
-				}else if(element.matches("\\d+\\.\\d+")){
-					return this.getBigDecimalValue(element);
-				}else if(element.matches("\\-\\d+\\.\\d+")){
-					return this.getBigDecimalValue(element);
-				}else if(this.isBigDecimal(element)){
-					return this.getBigDecimalValue(element);
-				}else if(element.toLowerCase().matches("null")){
-					return null;
-				}else if(element.toLowerCase().matches("true")){
+				}else if(element.equals("true")){
 					return true;
-				}else if(element.toLowerCase().matches("false")){
+				}else if(element.equals("false")){
 					return false;
+				}else if(element.equals("null")){
+					return null;
 				}else{
-					zResultInfo.setValid(false);
-					throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
+					return this.getBigDecimalValue(element);
 				}
 			}catch(Exception e){
-				zResultInfo.setValid(false);
 				throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
-			}
-		}
-		
-		private boolean isValidElement(String element){
-			if(element.startsWith("\"") && element.endsWith("\"")){
-				return true;
-			}else if(element.matches("\\d+")){
-				return true;
-			}else if(element.matches("\\-\\d+")){
-				return true;
-			}else if(element.matches("\\d+\\.\\d+")){
-				return true;
-			}else if(element.matches("\\-\\d+\\.\\d+")){
-				return true;
-			}else if(this.isBigDecimal(element)){
-				return true;
-			}else if(element.toLowerCase().matches("null")){
-				return true;
-			}else if(element.toLowerCase().matches("true")){
-				return true;
-			}else if(element.toLowerCase().matches("false")){
-				return true;
-			}else{
-				return false;
 			}
 		}
 		
@@ -355,7 +308,6 @@ public class ZSON {
 				sb.append(chars[i]);
 				sb.append(chars[i+1]);
 			}catch(Exception e){
-				zResultInfo.setValid(false);
 				throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 			}
 		}
@@ -373,7 +325,6 @@ public class ZSON {
 		
 		private void handleMapConnector(ZsonInfo zinfo, StringBuffer sb){
 			if(zinfo.isMark() || zinfo.getMarkIndex()%2!=0 || sb.length()==0 || zinfo.isMap() || zinfo.isElementSeparate()){
-				zResultInfo.setValid(false);
 				throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 			}
 			zinfo.setMap(true);
@@ -387,8 +338,7 @@ public class ZSON {
 			}else{
 				zinfo.setElement(sb.toString().trim());
 			}
-			if(zinfo.isElementSeparate() || zinfo.isMark() || zinfo.getMarkIndex()%2!=0 || (zinfo.isMap() && (!zinfo.getElement().equals("") && !this.isValidMapKey(zinfo.getElement()))) || (!zinfo.getElement().equals("") && !this.isValidElement(zinfo.getElement()))){
-				zResultInfo.setValid(false);
+			if(zinfo.isElementSeparate() || zinfo.isMark() || zinfo.getMarkIndex()%2!=0 || (zinfo.isMap() && (!zinfo.getElement().equals("") && !this.isValidMapKey(zinfo.getElement())))){
 				throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 			}
 			if(!zinfo.getElement().equals("")){
@@ -411,8 +361,7 @@ public class ZSON {
 			}else{
 				zinfo.setElement(sb.toString().trim());
 			}
-			if(zinfo.isElementSeparate() || zinfo.isMark() || zinfo.getMarkIndex()%2!=0 || (zinfo.isMap() && (!zinfo.getElement().equals("") && !this.isValidMapKey(zinfo.getElement()))) || (!zinfo.getElement().equals("") && !this.isValidElement(zinfo.getElement()))){
-				zResultInfo.setValid(false);
+			if(zinfo.isElementSeparate() || zinfo.isMark() || zinfo.getMarkIndex()%2!=0 || (zinfo.isMap() && (!zinfo.getElement().equals("") && !this.isValidMapKey(zinfo.getElement())))){
 				throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 			}
 			if(!zinfo.getElement().equals("")){
@@ -431,13 +380,11 @@ public class ZSON {
 		}
 		
 		public ZsonResult fromJson(){
-			if(json==null){
-				//zResultInfo.setValid(false);
+			if(json==null || json.trim().equals("")){
 				throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 			}
 			char[] chars = json.toCharArray();
 			if(chars[0]!=ZsonUtils.jsonListBegin && chars[0]!=ZsonUtils.jsonMapBegin){
-				//zResultInfo.setValid(false);
 				throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
 			}
 			ZsonInfo zinfo = new ZsonInfo();
@@ -476,21 +423,7 @@ public class ZSON {
 			}
 			return zResult;
 		}
-		
-		private boolean isBigDecimal(String math){
-			try{
-				new BigDecimal(math);
-			}catch(Exception e){
-				return false;
-			}
-			return true;
-		}
-		
-//		private String getBigDecimal(String math){
-//			BigDecimal bd = new BigDecimal(math);
-//			return bd.toPlainString();
-//		}
-		
+
 		private BigDecimal getBigDecimalValue(String math){
 			BigDecimal bd = new BigDecimal(math);
 			return bd;
