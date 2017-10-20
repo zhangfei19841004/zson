@@ -181,35 +181,19 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 	}
 
 	@Override
-	public void addValue(String path, int index, Object json) {
+	public void addValue(String path, Object json) {
 		ZsonAdd add = new ZsonAdd();
-		add.setAddIndex(index);
 		add.setAddJson(json);
+		String key = path.substring(path.lastIndexOf("/") + 1);
+		if(key.matches("\\*\\[\\d+\\]")){
+			add.setAddIndex(Integer.parseInt(key.replaceFirst("\\*\\[(\\d+)\\]","$1")));
+		}else if("".equals(key)){
+			throw new RuntimeException("path is not valid!");
+		}else{
+			add.setAddKey(key);
+		}
+		path = path.substring(0, path.lastIndexOf("/")).replaceFirst("(.*?)/*$","$1");
 		this.resultHandle(add, path, false);
-	}
-
-	@Override
-	public void addValue(String path, String key, Object json) {
-		ZsonAdd add = new ZsonAdd();
-		add.setAddKey(key);
-		add.setAddJson(json);
-		this.resultHandle(add, path, false);
-	}
-	
-	@Override
-	public void addValue(int index, Object json) {
-		ZsonAdd add = new ZsonAdd();
-		add.setAddIndex(index);
-		add.setAddJson(json);
-		this.resultHandle(add, "", false);
-	}
-
-	@Override
-	public void addValue(String key, Object json) {
-		ZsonAdd add = new ZsonAdd();
-		add.setAddKey(key);
-		add.setAddJson(json);
-		this.resultHandle(add, "", false);
 	}
 
 	@Override
@@ -229,5 +213,5 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 		update.setUpdateJson(json);
 		this.resultHandle(update, path, false);
 	}
-	
+
 }

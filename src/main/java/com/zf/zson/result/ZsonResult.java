@@ -28,14 +28,8 @@ public interface ZsonResult{
 	
 	public boolean getBoolean(String path);
 	
-	public void addValue(String path, int index, Object json);
-	
-	public void addValue(String path, String key, Object json);
-	
-	public void addValue(int index, Object json);
-	
-	public void addValue(String key, Object json);
-	
+	public void addValue(String path, Object json);
+
 	public void deleteValue(String path);
 	
 	public void updateValue(String path, Object json);
