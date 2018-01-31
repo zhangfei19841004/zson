@@ -10,10 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ZsonUpdate extends ZsonActionAbstract{
-	
+public class ZsonUpdate extends ZsonActionAbstract {
+
 	private Object updateJson;
-	
+
 	private List<String> handledPath = new ArrayList<String>();
 
 	public void setUpdateJson(Object updateJson) {
@@ -22,7 +22,7 @@ public class ZsonUpdate extends ZsonActionAbstract{
 
 	@Override
 	public void process(ZsonResult zr, Object value, String currentPath) {
-		if(handledPath.contains(currentPath)){
+		if (handledPath.contains(currentPath)) {
 			return;
 		}
 		ZsonResultImpl zri = (ZsonResultImpl) zr;
@@ -32,14 +32,14 @@ public class ZsonUpdate extends ZsonActionAbstract{
 		Object element = zri.getResultByKey(key);
 		ZsonObject<Object> parentObj = new ZsonObject<Object>();
 		parentObj.objectConvert(element);
-		if((zcp.getIndex()!=null && parentObj.isList()) || (zcp.getKey()!=null && parentObj.isMap())){
+		if ((zcp.getIndex() != null && parentObj.isList()) || (zcp.getKey() != null && parentObj.isMap())) {
 			Object updateObj = null;
-			if(zcp.getIndex()!=null && parentObj.isList()){
+			if (zcp.getIndex() != null && parentObj.isList()) {
 				List<Object> pathValueList = parentObj.getZsonList();
-				pathValueList.set((int)zcp.getIndex(), this.getActionObject(zri, updateJson));
+				pathValueList.set((int) zcp.getIndex(), this.getActionObject(zri, updateJson));
 				updateObj = pathValueList;
-				
-			}else if(zcp.getKey()!=null && parentObj.isMap()){
+
+			} else if (zcp.getKey() != null && parentObj.isMap()) {
 				Map<String, Object> pathValueMap = parentObj.getZsonMap();
 				pathValueMap.put(zcp.getKey(), this.getActionObject(zri, updateJson));
 				updateObj = pathValueMap;
@@ -66,5 +66,5 @@ public class ZsonUpdate extends ZsonActionAbstract{
 	public boolean after(ZsonResult zr) {
 		return false;
 	}
-	
+
 }

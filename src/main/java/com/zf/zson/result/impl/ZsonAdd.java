@@ -10,18 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ZsonAdd extends ZsonActionAbstract{
-	
+public class ZsonAdd extends ZsonActionAbstract {
+
 	private Object addJson;
-	
+
 	private String addKey;
-	
+
 	private Integer addIndex;
-	
+
 	private String addRootPath;
-	
+
 	private List<String> handledPath = new ArrayList<String>();
-	
+
 	public void setAddJson(Object addJson) {
 		this.addJson = addJson;
 	}
@@ -35,32 +35,32 @@ public class ZsonAdd extends ZsonActionAbstract{
 	}
 
 	public void process(ZsonResult zr, Object value, String currentPath) {
-		if(handledPath.contains(currentPath)){
+		if (handledPath.contains(currentPath)) {
 			return;
 		}
 		ZsonResultImpl zri = (ZsonResultImpl) zr;
 		String key = zri.getElementKey(value);
-		if(key == null){
+		if (key == null) {
 			return;
 		}
 		//String parentPath = this.getParentPath(zri, key);
 		Object pathValue = zri.getResultByKey(key);
 		ZsonObject<Object> valueByKeyObj = new ZsonObject<Object>();
 		valueByKeyObj.objectConvert(pathValue);
-		if((addIndex!=null && valueByKeyObj.isList()) || (addKey!=null && valueByKeyObj.isMap())){
+		if ((addIndex != null && valueByKeyObj.isList()) || (addKey != null && valueByKeyObj.isMap())) {
 			Object addObj = null;
-			if(addIndex!=null && valueByKeyObj.isList()){
+			if (addIndex != null && valueByKeyObj.isList()) {
 				List<Object> pathValueList = valueByKeyObj.getZsonList();
 				Object actionValue = this.getActionObject(zri, addJson);
 				pathValueList.add(addIndex, actionValue);
-				addRootPath = currentPath+"/*["+addIndex+"]";
+				addRootPath = currentPath + "/*[" + addIndex + "]";
 				addObj = pathValueList;
-				
-			}else if(addKey!=null && valueByKeyObj.isMap()){
+
+			} else if (addKey != null && valueByKeyObj.isMap()) {
 				Map<String, Object> pathValueMap = valueByKeyObj.getZsonMap();
 				Object actionValue = this.getActionObject(zri, addJson);
 				pathValueMap.put(addKey, actionValue);
-				addRootPath = currentPath+"/"+addKey;
+				addRootPath = currentPath + "/" + addKey;
 				addObj = pathValueMap;
 			}
 			handledPath.add(currentPath);
@@ -81,19 +81,19 @@ public class ZsonAdd extends ZsonActionAbstract{
 	@Override
 	public boolean before(ZsonResult zr) {
 		ZsonResultImpl zri = (ZsonResultImpl) zr;
-		if(zri.getzPath().isRootPath()){
+		if (zri.getzPath().isRootPath()) {
 			Object pathValue = zri.getResultByKey(ZsonUtils.BEGIN_KEY);
 			ZsonObject<Object> valueByKeyObj = new ZsonObject<Object>();
 			valueByKeyObj.objectConvert(pathValue);
-			if((addIndex!=null && valueByKeyObj.isList()) || (addKey!=null && valueByKeyObj.isMap())){
+			if ((addIndex != null && valueByKeyObj.isList()) || (addKey != null && valueByKeyObj.isMap())) {
 				Object addObj = null;
-				if(addIndex!=null && valueByKeyObj.isList()){
+				if (addIndex != null && valueByKeyObj.isList()) {
 					List<Object> pathValueList = valueByKeyObj.getZsonList();
 					Object actionValue = this.getActionObject(zri, addJson);
 					pathValueList.add(addIndex, actionValue);
 					addObj = pathValueList;
-					
-				}else if(addKey!=null && valueByKeyObj.isMap()){
+
+				} else if (addKey != null && valueByKeyObj.isMap()) {
 					Map<String, Object> pathValueMap = valueByKeyObj.getZsonMap();
 					Object actionValue = this.getActionObject(zri, addJson);
 					pathValueMap.put(addKey, actionValue);
@@ -115,11 +115,11 @@ public class ZsonAdd extends ZsonActionAbstract{
 	public boolean after(ZsonResult zr) {
 		return false;
 	}
-	
+
 	public static void main(String[] args) {
 		String p = "/a/*[1]";
 		String p1 = "/a/*[1]/a";
 		String regPath = p.replaceAll("\\/", "\\\\/").replaceAll("\\*", "\\\\*").replaceAll("\\[", "\\\\[").replaceAll("\\]", "\\\\]").replaceAll("\\\\/\\\\/", "(/.+)*\\\\/");
-		System.out.println(p1.matches(regPath+"/.+"));
+		System.out.println(p1.matches(regPath + "/.+"));
 	}
 }

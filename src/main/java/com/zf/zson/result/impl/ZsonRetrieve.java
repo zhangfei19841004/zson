@@ -7,8 +7,8 @@ import com.zf.zson.result.ZsonResult;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ZsonRetrieve implements ZsonAction{
-	
+public class ZsonRetrieve implements ZsonAction {
+
 	private List<Object> result = new ArrayList<Object>();
 
 	public List<Object> getResult() {
@@ -29,7 +29,7 @@ public class ZsonRetrieve implements ZsonAction{
 	@Override
 	public boolean before(ZsonResult zr) {
 		ZsonResultImpl zri = (ZsonResultImpl) zr;
-		if(zri.getzPath().isRootPath()){
+		if (zri.getzPath().isRootPath()) {
 			result.add(zri.getZsonResultToString().toJsonString(zri.getResultByKey(ZsonUtils.BEGIN_KEY)));
 			return false;
 		}

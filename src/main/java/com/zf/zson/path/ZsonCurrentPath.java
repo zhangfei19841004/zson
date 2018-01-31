@@ -1,9 +1,9 @@
 package com.zf.zson.path;
 
 public class ZsonCurrentPath {
-	
+
 	private Integer index;
-	
+
 	private String key;
 
 	public Integer getIndex() {
@@ -21,5 +21,5 @@ public class ZsonCurrentPath {
 	public void setKey(String key) {
 		this.key = key;
 	}
-	
+
 }

@@ -9,10 +9,10 @@ import com.zf.zson.result.ZsonResult;
 import java.util.List;
 import java.util.Map;
 
-public class ZsonDelete extends ZsonActionAbstract{
-	
+public class ZsonDelete extends ZsonActionAbstract {
+
 	private boolean deleted = false;
-	
+
 	public void process(ZsonResult zr, Object value, String currentPath) {
 		ZsonResultImpl zri = (ZsonResultImpl) zr;
 		String ckey = zri.getElementKey(value);
@@ -22,19 +22,19 @@ public class ZsonDelete extends ZsonActionAbstract{
 		Object element = zri.getResultByKey(key);
 		ZsonObject<Object> parentObj = new ZsonObject<Object>();
 		parentObj.objectConvert(element);
-		if((zcp.getIndex()!=null && parentObj.isList()) || (zcp.getKey()!=null && parentObj.isMap())){
+		if ((zcp.getIndex() != null && parentObj.isList()) || (zcp.getKey() != null && parentObj.isMap())) {
 			Object addObj = null;
-			if(zcp.getIndex()!=null && parentObj.isList()){
+			if (zcp.getIndex() != null && parentObj.isList()) {
 				List<Object> pathValueList = parentObj.getZsonList();
-				pathValueList.remove((int)zcp.getIndex());
+				pathValueList.remove((int) zcp.getIndex());
 				addObj = pathValueList;
-				
-			}else if(zcp.getKey()!=null && parentObj.isMap()){
+
+			} else if (zcp.getKey() != null && parentObj.isMap()) {
 				Map<String, Object> pathValueMap = parentObj.getZsonMap();
 				pathValueMap.remove(zcp.getKey());
 				addObj = pathValueMap;
 			}
-			if(ckey!=null){
+			if (ckey != null) {
 				deleted = true;
 			}
 			ZsonResultImpl zrNew = (ZsonResultImpl) ZSON.parseJson(ZSON.toJsonString(addObj));
@@ -47,9 +47,9 @@ public class ZsonDelete extends ZsonActionAbstract{
 
 	@Override
 	public int offset(ZsonResult zr, Object value) {
-		if(deleted){
+		if (deleted) {
 			return -1;
-		}else{
+		} else {
 			return 0;
 		}
 		//return 0;
@@ -64,5 +64,5 @@ public class ZsonDelete extends ZsonActionAbstract{
 	public boolean after(ZsonResult zr) {
 		return false;
 	}
-	
+
 }

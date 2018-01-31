@@ -3,17 +3,17 @@ package com.zf.zson.parse;
 public class ZsonInfo {
 
 	private String element = null;//扫描出来的数据
-	
+
 	private String v = null;//如果是map，扫描出来的value
-	
+
 	private boolean isMap = false;//：后会被判定为MAP
-	
+
 	private boolean isMark = false;// 标识"
-	
+
 	private boolean isElementSeparate = false; //是不是逗号
-	
+
 	private int markIndex = 0;// 标识有多少个"
-	
+
 	private boolean needClassType = false;
 
 	public String getElement() {
@@ -71,5 +71,5 @@ public class ZsonInfo {
 	public void setNeedClassType(boolean needClassType) {
 		this.needClassType = needClassType;
 	}
-	
+
 }

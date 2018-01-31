@@ -21,20 +21,20 @@ public class Demo {
 		System.out.println(zr2.getString("/*[5]"));
 		System.out.println(zr2.getBoolean("/*[6]"));
 		String s3 = "{\"a\":[\"a1\",{\"a2\":123},\"a1\"],\"cb\":{\"a\":1},\"d\":[\"a\",{\"a\":[1,20,{\"a\":[90]}]},{\"a\":2},\"\"],\"e\":\"b\"}";
-		
+
 
 		ZsonResult zr3 = ZSON.parseJson(s3);
 		System.out.println(zr3.getValues("//*[0]"));
 		System.out.println(zr3.getPaths());
 		System.out.println(zr3.getClassTypes());
-		zr3.addValue("//a/*[1]","new");
+		zr3.addValue("//a/*[1]", "new");
 		zr3.addValue("/new", "{\"a\":12}");
 		System.out.println(zr3.getValues("//new"));
 		System.out.println(zr3.getValue(""));
 		zr3.deleteValue("//a2");
 		zr3.updateValue("//a", 3);
 		System.out.println(zr3.getValue());
-		
+
 	}
 
 }

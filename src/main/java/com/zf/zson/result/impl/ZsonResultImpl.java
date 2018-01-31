@@ -1,6 +1,7 @@
 package com.zf.zson.result.impl;
 
 import com.zf.zson.ZsonUtils;
+import com.zf.zson.exception.ZsonException;
 import com.zf.zson.object.ZsonObject;
 import com.zf.zson.result.ZsonAction;
 import com.zf.zson.result.ZsonResultAbstract;
@@ -10,16 +11,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class ZsonResultImpl extends ZsonResultAbstract{
-	
-	public boolean isValid(){
-		if(!zResultInfo.isValid() || zResultInfo.getCollections().size()==0){
+public class ZsonResultImpl extends ZsonResultAbstract {
+
+	public boolean isValid() {
+		if (!zResultInfo.isValid() || zResultInfo.getCollections().size() == 0) {
 			return false;
 		}
-		if(!zResultInfo.isAllFinished()){
+		if (!zResultInfo.isAllFinished()) {
 			Collection<Map<String, Integer>> values = zResultInfo.getIndex().values();
 			for (Map<String, Integer> map : values) {
-				if(map.get(ZsonUtils.STATUS)==0){
+				if (map.get(ZsonUtils.STATUS) == 0) {
 					zResultInfo.setValid(false);
 					zResultInfo.setAllFinished(true);
 					return zResultInfo.isValid();
@@ -28,66 +29,66 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 		}
 		return zResultInfo.isValid();
 	}
-	
-	public void checkValid(){
-		if(!this.isValid()){
-			throw new RuntimeException(ZsonUtils.JSON_NOT_VALID);
+
+	public void checkValid() {
+		if (!this.isValid()) {
+			throw new ZsonException(ZsonUtils.JSON_NOT_VALID);
 		}
 	}
-	
-	private void beforeHandle(String path){
+
+	private void beforeHandle(String path) {
 		this.checkValid();
 		zPath.setPath(path);
-		if(!zPath.checkPath()){
-			throw new RuntimeException("path is not valid!");
+		if (!zPath.checkPath()) {
+			throw new ZsonException("path is not valid!");
 		}
 	}
-	
-	private void resultHandle(ZsonAction za, String path, boolean isSingleResult){
+
+	private void resultHandle(ZsonAction za, String path, boolean isSingleResult) {
 		this.beforeHandle(path);
-		if(!za.before(this)){
+		if (!za.before(this)) {
 			return;
 		}
-		if(zPath.checkAbsolutePath()){
+		if (zPath.checkAbsolutePath()) {
 			isSingleResult = true;
 		}
 		//List<String> levels = zResultInfo.getLevel();
 		for (int i = 0; i < zResultInfo.getLevel().size(); i++) {
 			ZsonObject<String> pathObject = new ZsonObject<String>();
 			pathObject.objectConvert(zResultInfo.getPath().get(i));
-			if(pathObject.isList()){
+			if (pathObject.isList()) {
 				//List<String> pathList = pathObject.getZsonList();
 				for (int j = 0; j < pathObject.getZsonList().size(); j++) {
-					if(zPath.isMatchPath(pathObject.getZsonList().get(j))){
+					if (zPath.isMatchPath(pathObject.getZsonList().get(j))) {
 						ZsonObject<Object> resultObject = new ZsonObject<Object>();
 						resultObject.objectConvert(zResultInfo.getCollections().get(i));
-						if(!(resultObject.isList())){
-							throw new RuntimeException("parse json error!");
+						if (!(resultObject.isList())) {
+							throw new ZsonException("parse json error!");
 						}
 						List<Object> resultList = resultObject.getZsonList();
 						Object value = resultList.get(j);
 						za.process(this, value, pathObject.getZsonList().get(j));
 						i += za.offset(this, value);
-						if(isSingleResult){
+						if (isSingleResult) {
 							za.after(this);
 							return;
 						}
 					}
 				}
-			}else if(pathObject.isMap()){
+			} else if (pathObject.isMap()) {
 				//Map<String, String> pathMap = pathObject.getZsonMap();
 				for (String k : pathObject.getZsonMap().keySet()) {
-					if(zPath.isMatchPath(pathObject.getZsonMap().get(k))){
+					if (zPath.isMatchPath(pathObject.getZsonMap().get(k))) {
 						ZsonObject<Object> resultObject = new ZsonObject<Object>();
 						resultObject.objectConvert(zResultInfo.getCollections().get(i));
-						if(!(resultObject.isMap())){
-							throw new RuntimeException("parse json error!");
+						if (!(resultObject.isMap())) {
+							throw new ZsonException("parse json error!");
 						}
 						Map<String, Object> resultMap = resultObject.getZsonMap();
 						Object value = resultMap.get(k);
 						za.process(this, value, pathObject.getZsonMap().get(k));
 						i += za.offset(this, value);
-						if(isSingleResult){
+						if (isSingleResult) {
 							za.after(this);
 							return;
 						}
@@ -95,26 +96,26 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 				}
 			}
 		}
-		if(isSingleResult){
-			throw new RuntimeException("path is not valid!");
+		if (isSingleResult) {
+			throw new ZsonException("path is not valid!");
 		}
 		za.after(this);
 	}
-	
-	public Object getValue(String path){
+
+	public Object getValue(String path) {
 		ZsonRetrieve zre = new ZsonRetrieve();
 		this.resultHandle(zre, path, true);
 		return zre.getResult().get(0);
 	}
-	
+
 	@Override
 	public Object getValue() {
 		ZsonRetrieve zre = new ZsonRetrieve();
 		this.resultHandle(zre, "", true);
 		return zre.getResult().get(0);
 	}
-	
-	public List<Object> getValues(String path){
+
+	public List<Object> getValues(String path) {
 		ZsonRetrieve zre = new ZsonRetrieve();
 		this.resultHandle(zre, path, false);
 		return zre.getResult();
@@ -123,60 +124,60 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 	@Override
 	public int getInteger(String path) {
 		Object obj = this.getValue(path);
-		if(obj instanceof BigDecimal){
-			return ((BigDecimal)obj).intValue();
-		}else{
-			throw new RuntimeException("can not get int with path: "+path);
+		if (obj instanceof BigDecimal) {
+			return ((BigDecimal) obj).intValue();
+		} else {
+			throw new ZsonException("can not get int with path: " + path);
 		}
 	}
 
 	@Override
 	public long getLong(String path) {
 		Object obj = this.getValue(path);
-		if(obj instanceof BigDecimal){
-			return ((BigDecimal)obj).longValue();
-		}else{
-			throw new RuntimeException("can not get long with path: "+path);
+		if (obj instanceof BigDecimal) {
+			return ((BigDecimal) obj).longValue();
+		} else {
+			throw new ZsonException("can not get long with path: " + path);
 		}
 	}
 
 	@Override
 	public double getDouble(String path) {
 		Object obj = this.getValue(path);
-		if(obj instanceof BigDecimal){
-			return ((BigDecimal)obj).doubleValue();
-		}else{
-			throw new RuntimeException("can not get double with path: "+path);
+		if (obj instanceof BigDecimal) {
+			return ((BigDecimal) obj).doubleValue();
+		} else {
+			throw new ZsonException("can not get double with path: " + path);
 		}
 	}
 
 	@Override
 	public float getFloat(String path) {
 		Object obj = this.getValue(path);
-		if(obj instanceof BigDecimal){
-			return ((BigDecimal)obj).floatValue();
-		}else{
-			throw new RuntimeException("can not get float with path: "+path);
+		if (obj instanceof BigDecimal) {
+			return ((BigDecimal) obj).floatValue();
+		} else {
+			throw new ZsonException("can not get float with path: " + path);
 		}
 	}
 
 	@Override
 	public boolean getBoolean(String path) {
 		Object obj = this.getValue(path);
-		if(obj instanceof Boolean){
-			return (Boolean)obj;
-		}else{
-			throw new RuntimeException("can not get boolean with path: "+path);
+		if (obj instanceof Boolean) {
+			return (Boolean) obj;
+		} else {
+			throw new ZsonException("can not get boolean with path: " + path);
 		}
 	}
 
 	@Override
 	public String getString(String path) {
 		Object obj = this.getValue(path);
-		if(obj instanceof String){
-			return (String)obj;
-		}else{
-			throw new RuntimeException("can not get String with path: "+path);
+		if (obj instanceof String) {
+			return (String) obj;
+		} else {
+			throw new ZsonException("can not get String with path: " + path);
 		}
 	}
 
@@ -185,14 +186,14 @@ public class ZsonResultImpl extends ZsonResultAbstract{
 		ZsonAdd add = new ZsonAdd();
 		add.setAddJson(json);
 		String key = path.substring(path.lastIndexOf("/") + 1);
-		if(key.matches("\\*\\[\\d+\\]")){
-			add.setAddIndex(Integer.parseInt(key.replaceFirst("\\*\\[(\\d+)\\]","$1")));
-		}else if("".equals(key)){
-			throw new RuntimeException("path is not valid!");
-		}else{
+		if (key.matches("\\*\\[\\d+\\]")) {
+			add.setAddIndex(Integer.parseInt(key.replaceFirst("\\*\\[(\\d+)\\]", "$1")));
+		} else if ("".equals(key)) {
+			throw new ZsonException("path is not valid!");
+		} else {
 			add.setAddKey(key);
 		}
-		path = path.substring(0, path.lastIndexOf("/")).replaceFirst("(.*?)/*$","$1");
+		path = path.substring(0, path.lastIndexOf("/")).replaceFirst("(.*?)/*$", "$1");
 		this.resultHandle(add, path, false);
 	}
 

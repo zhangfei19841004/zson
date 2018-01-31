@@ -4,13 +4,13 @@ import java.util.List;
 import java.util.Map;
 
 public class ZsonObject<T> {
-	
+
 	private Map<String, T> zsonMap;
-	
+
 	private List<T> zsonList;
-	
+
 	private boolean isMap;
-	
+
 	private boolean isList;
 
 	public Map<String, T> getZsonMap() {
@@ -30,17 +30,17 @@ public class ZsonObject<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void objectConvert(Object obj){
-		if(obj instanceof List){
+	public void objectConvert(Object obj) {
+		if (obj instanceof List) {
 			zsonList = (List<T>) obj;
 			isList = true;
-		}else if(obj instanceof Map){
+		} else if (obj instanceof Map) {
 			zsonMap = (Map<String, T>) obj;
 			isMap = true;
 		}
 		/*else{
-			throw new RuntimeException("can not convert "+ obj.getClass().getSimpleName()+" to List or Map!");
+			throw new ZsonException("can not convert "+ obj.getClass().getSimpleName()+" to List or Map!");
 		}*/
 	}
-	
+
 }
