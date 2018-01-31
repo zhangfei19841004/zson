@@ -256,35 +256,35 @@ getResult();
 ```
 
 #### 2017年1月3日更新日志(新版本！)
-```
+
 这次更新主要是对结果的处理进行了重构，因为考虑到结果的处理主要是用到了路径，所以在解析json串时，将每个结点的路径给保存下来了，相当于给结果做了一个索引，这样处理结果时，就非常的快，且非常的方便了。重构后的API解释如下：
-    	public boolean isValid();//判断json串是否合法
-    
-	public Object getResult();//获取整个结果对象
-    
-	public Object getValue(String path);//根据路径获取结果集的第一个值
-    
-	public Object getValue();//获取整个结果json字符串
-    
-	public List<Object> getValues(String path);//获取符合路径的所有结果集
-    
-	public String getString(String path);//根据路径获取结果集的第一个值，并转换为字符串
-    
-	public int getInteger(String path);//根据路径获取结果集的第一个值，并转换为Integer
-    
-	public long getLong(String path);//根据路径获取结果集的第一个值，并转换为Long
-	
-	public double getDouble(String path);//根据路径获取结果集的第一个值，并转换为Double
-	
-	public float getFloat(String path);//根据路径获取结果集的第一个值，并转换为Float
-	
-	public boolean getBoolean(String path);//根据路径获取结果集的第一个值，并转换为Boolean
-	
-	public void addValue(String path, int index, Object json);//在路径path下的index位置添加一个新的json串
-    
-	public void addValue(String path, Object json);//在路径path下添加一个key为'key',value为'json'
-		
-	public void deleteValue(String path);//删除path的所有对象
-    
-	public void updateValue(String path, Object json);//更新path的值为'json'
+
+```
+public boolean isValid();//判断json串是否合法
+
+public Object getResult();//获取整个结果对象
+
+public Object getValue(String path);//根据路径获取结果集的第一个值
+
+public Object getValue();//获取整个结果json字符串
+
+public List<Object> getValues(String path);//获取符合路径的所有结果集
+
+public String getString(String path);//根据路径获取结果集的第一个值，并转换为字符串
+
+public int getInteger(String path);//根据路径获取结果集的第一个值，并转换为Integer
+
+public long getLong(String path);//根据路径获取结果集的第一个值，并转换为Long
+
+public double getDouble(String path);//根据路径获取结果集的第一个值，并转换为Double
+
+public float getFloat(String path);//根据路径获取结果集的第一个值，并转换为Float
+
+public boolean getBoolean(String path);//根据路径获取结果集的第一个值，并转换为Boolean
+
+public void addValue(String path, Object json);//在路径path下添加一个key为'key',value为'json'
+
+public void deleteValue(String path);//删除path的所有对象
+
+public void updateValue(String path, Object json);//更新path的值为'json'
 ```
