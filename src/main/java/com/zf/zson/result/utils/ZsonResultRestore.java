@@ -1,11 +1,11 @@
 package com.zf.zson.result.utils;
 
 import com.zf.zson.ZsonUtils;
+import com.zf.zson.common.Utils;
 import com.zf.zson.object.ZsonObject;
 import com.zf.zson.result.ZsonResultAbstract;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +30,7 @@ public class ZsonResultRestore {
 	}
 
 	private Map<String, Object> restoreMap(Map<String, Object> map) {
-		Map<String, Object> restore = new LinkedHashMap<String, Object>();
+		Map<String, Object> restore = Utils.getMap(zsonResultAbstract.getzResultInfo().isLinked());
 		for (String mapKey : map.keySet()) {
 			Object mapValue = map.get(mapKey);
 			if (mapValue instanceof Map || mapValue instanceof List) {

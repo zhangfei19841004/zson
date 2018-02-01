@@ -13,6 +13,10 @@ import java.util.Map;
 
 public class ZsonResultImpl extends ZsonResultAbstract {
 
+	public ZsonResultImpl(boolean linked) {
+		super(linked);
+	}
+
 	public boolean isValid() {
 		if (!zResultInfo.isValid() || zResultInfo.getCollections().size() == 0) {
 			return false;

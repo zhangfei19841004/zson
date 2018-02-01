@@ -1,7 +1,8 @@
 package com.zf.zson.result.info;
 
+import com.zf.zson.common.Utils;
+
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +12,8 @@ public class ZsonResultInfo {
 	 * 标识json是否是一个合格的JSON串及解析是否全部解析完成
 	 */
 	private boolean valid = true;
+
+	private boolean linked;
 
 	/**
 	 * 存放解析JSON过程中所有的LIST与MAP
@@ -24,7 +27,7 @@ public class ZsonResultInfo {
 	 * status有0，1，0表示没有解析完成，1表示已解析完成
 	 * index指对象在collections中的index
 	 */
-	private Map<String, Map<String, Integer>> index = new LinkedHashMap<String, Map<String, Integer>>();
+	private Map<String, Map<String, Integer>> index;
 
 	/**
 	 * 标识json解析是否全部解析完成
@@ -45,6 +48,11 @@ public class ZsonResultInfo {
 	 * 存放JSON的数据类型
 	 */
 	private List<Object> classTypes = new ArrayList<Object>();
+
+	public ZsonResultInfo(boolean linked) {
+		this.linked = linked;
+		index = Utils.getMap(linked);
+	}
 
 	public boolean isValid() {
 		return valid;
@@ -100,6 +108,10 @@ public class ZsonResultInfo {
 
 	public void setClassTypes(List<Object> classTypes) {
 		this.classTypes = classTypes;
+	}
+
+	public boolean isLinked() {
+		return linked;
 	}
 
 }

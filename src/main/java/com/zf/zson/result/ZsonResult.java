@@ -6,35 +6,36 @@ import java.util.Map;
 
 public interface ZsonResult {
 
-	public boolean isValid();
+	boolean isValid();
 
-	public Object getResult();
+	Object getResult();
 
-	public Object getValue(String path);
+	Object getValue(String path);
 
-	public Object getValue();
+	Object getValue();
 
-	public List<Object> getValues(String path);
+	List<Object> getValues(String path);
 
-	public String getString(String path);
+	String getString(String path);
 
-	public int getInteger(String path);
+	int getInteger(String path);
 
-	public long getLong(String path);
+	long getLong(String path);
 
-	public double getDouble(String path);
+	double getDouble(String path);
 
-	public float getFloat(String path);
+	float getFloat(String path);
 
-	public boolean getBoolean(String path);
+	boolean getBoolean(String path);
 
-	public void addValue(String path, Object json);
+	void addValue(String path, Object json);
 
-	public void deleteValue(String path);
+	void deleteValue(String path);
 
-	public void updateValue(String path, Object json);
+	void updateValue(String path, Object json);
 
-	public List<String> getPaths();
+	List<String> getPaths();
 
-	public Map<String, Class<?>> getClassTypes();
+	Map<String, Class<?>> getClassTypes();
+
 }

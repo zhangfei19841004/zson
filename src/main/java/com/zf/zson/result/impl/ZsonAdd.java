@@ -65,7 +65,7 @@ public class ZsonAdd extends ZsonActionAbstract {
 			}
 			handledPath.add(currentPath);
 			handledPath.add(addRootPath);
-			ZsonResultImpl zrNew = (ZsonResultImpl) ZSON.parseJson(ZSON.toJsonString(addObj));
+			ZsonResultImpl zrNew = (ZsonResultImpl) ZSON.parseJson(ZSON.toJsonString(addObj), zri.getzResultInfo().isLinked());
 			this.deleteZsonResultInfoChilrenKey(zri, key);
 			this.replaceZsonResultInfoKey(zrNew, key, currentPath, handledPath, addRootPath);
 			this.addNewResultToSourceResult(zri, zrNew);
@@ -99,7 +99,7 @@ public class ZsonAdd extends ZsonActionAbstract {
 					pathValueMap.put(addKey, actionValue);
 					addObj = pathValueMap;
 				}
-				ZsonResultImpl zrNew = (ZsonResultImpl) ZSON.parseJson(zri.getZsonResultToString().toJsonString(addObj));
+				ZsonResultImpl zrNew = (ZsonResultImpl) ZSON.parseJson(zri.getZsonResultToString().toJsonString(addObj), zri.getzResultInfo().isLinked());
 				zri.getzResultInfo().setCollections(zrNew.getzResultInfo().getCollections());
 				zri.getzResultInfo().setIndex(zrNew.getzResultInfo().getIndex());
 				zri.getzResultInfo().setLevel(zrNew.getzResultInfo().getLevel());

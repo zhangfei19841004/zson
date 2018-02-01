@@ -1,5 +1,6 @@
 package com.zf.zson;
 
+import com.zf.zson.common.Utils;
 import com.zf.zson.exception.ZsonException;
 import com.zf.zson.object.ZsonObject;
 import com.zf.zson.parse.ZsonInfo;
@@ -10,7 +11,6 @@ import com.zf.zson.result.utils.ZsonResultToString;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +18,12 @@ public class ZSON {
 
 	public static ZsonResult parseJson(String json) {
 		ZsonParse zp = new ZsonParse(json);
-		return zp.fromJson();
+		return zp.fromJson(true);
+	}
+
+	public static ZsonResult parseJson(String json, boolean linked) {
+		ZsonParse zp = new ZsonParse(json);
+		return zp.fromJson(linked);
 	}
 
 	public static String toJsonString(Object object) {
@@ -40,7 +45,7 @@ public class ZSON {
 			try {
 				int lastUNFIndex = this.getLatestUNFinishedLevelIndex();
 				Map<String, Integer> elementStatus = zResultInfo.getIndex().get(zResultInfo.getLevel().get(lastUNFIndex));
-				Object classType = null;
+				Object classType = Object.class;
 				if (elementStatus.get(ZsonUtils.TYPE) != type) {
 					throw new ZsonException(ZsonUtils.JSON_NOT_VALID);
 				} else {
@@ -180,7 +185,7 @@ public class ZSON {
 				elementObj.objectConvert(zResultInfo.getCollections().get(pElement.get(ZsonUtils.INDEX)));
 				if (zinfo.isMap()) {
 					Map<String, Object> elementMap = elementObj.getZsonMap();
-					Map<String, String> temp = new LinkedHashMap<String, String>();
+					Map<String, String> temp = Utils.getMap(zResultInfo.isLinked());
 					temp.put(ZsonUtils.LINK, key);
 					elementMap.put(this.getElementInstance(zinfo.getElement()).toString(), temp);
 				} else {
@@ -201,9 +206,9 @@ public class ZSON {
 			Object pathObj = null;
 			Object classTypeObj = null;
 			if (type == 0) {
-				zResultInfo.getCollections().add(new LinkedHashMap<String, Object>());
-				pathObj = new LinkedHashMap<String, Object>();
-				classTypeObj = new LinkedHashMap<String, Object>();
+				zResultInfo.getCollections().add(Utils.<String, Object>getMap(zResultInfo.isLinked()));
+				pathObj = Utils.<String, Object>getMap(zResultInfo.isLinked());
+				classTypeObj = Utils.<String, Object>getMap(zResultInfo.isLinked());
 			} else if (type == 1) {
 				zResultInfo.getCollections().add(new ArrayList<Object>());
 				pathObj = new ArrayList<Object>();
@@ -220,7 +225,7 @@ public class ZSON {
 			zResultInfo.getLevel().add(key);
 			zResultInfo.getPath().add(pathObj);
 			zResultInfo.getClassTypes().add(classTypeObj);
-			Map<String, Integer> objMap = new LinkedHashMap<String, Integer>();
+			Map<String, Integer> objMap = Utils.getMap(zResultInfo.isLinked());
 			objMap.put(ZsonUtils.TYPE, type);
 			objMap.put(ZsonUtils.STATUS, status);
 			objMap.put(ZsonUtils.INDEX, index);
@@ -381,7 +386,7 @@ public class ZSON {
 			sb.delete(0, sb.length());
 		}
 
-		public ZsonResult fromJson() {
+		public ZsonResult fromJson(boolean linked) {
 			if (json == null || json.trim().equals("")) {
 				throw new ZsonException(ZsonUtils.JSON_NOT_VALID);
 			}
@@ -390,7 +395,7 @@ public class ZSON {
 				throw new ZsonException(ZsonUtils.JSON_NOT_VALID);
 			}
 			ZsonInfo zinfo = new ZsonInfo();
-			ZsonResultImpl zResult = new ZsonResultImpl();
+			ZsonResultImpl zResult = new ZsonResultImpl(linked);
 			zResultInfo = zResult.getzResultInfo();
 			StringBuffer sb = new StringBuffer();
 			for (int i = 0; i < chars.length; i++) {

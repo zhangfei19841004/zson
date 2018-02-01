@@ -17,7 +17,7 @@ public class ZsonDelete extends ZsonActionAbstract {
 		ZsonResultImpl zri = (ZsonResultImpl) zr;
 		String ckey = zri.getElementKey(value);
 		ZsonCurrentPath zcp = this.setKeyOrIndexByPath(zri, currentPath);
-		String key = null;
+		String key;
 		key = this.getKeyByPath(zri, currentPath);
 		Object element = zri.getResultByKey(key);
 		ZsonObject<Object> parentObj = new ZsonObject<Object>();
@@ -37,7 +37,7 @@ public class ZsonDelete extends ZsonActionAbstract {
 			if (ckey != null) {
 				deleted = true;
 			}
-			ZsonResultImpl zrNew = (ZsonResultImpl) ZSON.parseJson(ZSON.toJsonString(addObj));
+			ZsonResultImpl zrNew = (ZsonResultImpl) ZSON.parseJson(ZSON.toJsonString(addObj), zri.getzResultInfo().isLinked());
 			this.deleteZsonResultInfoChilrenKey(zri, key);
 			this.replaceZsonResultInfoKey(zrNew, key, this.getParentPath(currentPath), null, null);
 			this.addNewResultToSourceResult(zri, zrNew);

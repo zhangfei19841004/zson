@@ -27,7 +27,7 @@ public class ZsonUpdate extends ZsonActionAbstract {
 		}
 		ZsonResultImpl zri = (ZsonResultImpl) zr;
 		ZsonCurrentPath zcp = this.setKeyOrIndexByPath(zri, currentPath);
-		String key = null;
+		String key;
 		key = this.getKeyByPath(zri, currentPath);
 		Object element = zri.getResultByKey(key);
 		ZsonObject<Object> parentObj = new ZsonObject<Object>();
@@ -44,7 +44,7 @@ public class ZsonUpdate extends ZsonActionAbstract {
 				pathValueMap.put(zcp.getKey(), this.getActionObject(zri, updateJson));
 				updateObj = pathValueMap;
 			}
-			ZsonResultImpl zrNew = (ZsonResultImpl) ZSON.parseJson(ZSON.toJsonString(updateObj));
+			ZsonResultImpl zrNew = (ZsonResultImpl) ZSON.parseJson(ZSON.toJsonString(updateObj), zri.getzResultInfo().isLinked());
 			this.deleteZsonResultInfoChilrenKey(zri, key);
 			this.replaceZsonResultInfoKey(zrNew, key, this.getParentPath(currentPath), handledPath, currentPath);
 			this.addNewResultToSourceResult(zri, zrNew);
