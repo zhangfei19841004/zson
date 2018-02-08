@@ -38,4 +38,6 @@ public interface ZsonResult {
 
 	Map<String, Class<?>> getClassTypes();
 
+	boolean validateJsonClassTypes(String baseJson);
+
 }

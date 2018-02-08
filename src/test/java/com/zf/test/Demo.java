@@ -8,6 +8,7 @@ public class Demo {
 	public static void main(String[] args) {
 		String s1 = "[{ \"firstName\": \"Eric\", \"lastName\": \"Clapton\", \"instrument\": \"guitar\" },{ \"firstName\": \"Sergei\", \"lastName\": \"Rachmaninoff\", \"instrument\": \"piano\" }] ";
 		ZsonResult zr1 = ZSON.parseJson(s1);
+		System.out.println(zr1.validateJsonClassTypes("[{\"firstName\":\"\",\"lastName\":\"\",\"instrument\":\"\"}]"));
 		System.out.println(zr1.getPaths());
 		System.out.println(zr1.getClassTypes());
 		System.out.println(zr1.getValue("/*[1]/lastName"));
