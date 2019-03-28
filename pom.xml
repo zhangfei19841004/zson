@@ -1,7 +1,38 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git@github.com:zhangfei19841004/zson.git</connection>
+        <developerConnection>scm:git:git@github.com:zhangfei19841004/zson.git</developerConnection>
+        <url>https://github.com/zhangfei19841004/zson</url>
+        <tag>master</tag>
+    </scm>
+
+    <developers>
+        <developer>
+            <name>zhangfei</name>
+            <email>zhangfei19841004@163.com</email>
+            <organization>zhangfei</organization>
+            <url>https://github.com/zhangfei19841004</url>
+        </developer>
+    </developers>
+
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.zf</groupId>
+    <groupId>zhangfei.link</groupId>
     <artifactId>zson</artifactId>
     <name>ZSON</name>
     <version>1.0</version>
