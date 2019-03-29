@@ -32,7 +32,7 @@
     </developers>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>zhangfei.link</groupId>
+    <groupId>link.zhangfei</groupId>
     <artifactId>zson</artifactId>
     <name>ZSON</name>
     <version>1.0</version>
@@ -93,7 +93,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
+            <!--<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
                 <version>1.2</version>
@@ -106,7 +106,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
         </plugins>
     </build>
 
