@@ -116,10 +116,4 @@ public class ZsonAdd extends ZsonActionAbstract {
 		return false;
 	}
 
-	public static void main(String[] args) {
-		String p = "/a/*[1]";
-		String p1 = "/a/*[1]/a";
-		String regPath = p.replaceAll("\\/", "\\\\/").replaceAll("\\*", "\\\\*").replaceAll("\\[", "\\\\[").replaceAll("\\]", "\\\\]").replaceAll("\\\\/\\\\/", "(/.+)*\\\\/");
-		System.out.println(p1.matches(regPath + "/.+"));
-	}
 }
