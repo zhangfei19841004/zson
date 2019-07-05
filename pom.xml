@@ -35,7 +35,7 @@
     <groupId>link.zhangfei</groupId>
     <artifactId>zson</artifactId>
     <name>ZSON</name>
-    <version>1.0</version>
+    <version>1.1</version>
     <description>专为测试人员打造的json解析器</description>
 
     <properties>
