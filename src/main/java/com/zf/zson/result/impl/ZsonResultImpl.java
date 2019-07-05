@@ -53,7 +53,7 @@ public class ZsonResultImpl extends ZsonResultAbstract {
 		if (!za.before(this)) {
 			return;
 		}
-		if (zPath.checkAbsolutePath()) {
+		if (zPath.isAbsolutePath()) {
 			isSingleResult = true;
 		}
 		//List<String> levels = zResultInfo.getLevel();

@@ -53,7 +53,7 @@ public abstract class ZsonResultAbstract implements ZsonResult {
 	public String getElementKey(Object value) {
 		ZsonObject<String> keyObj = new ZsonObject<String>();
 		keyObj.objectConvert(value);
-		String key = null;
+		String key;
 		if (keyObj.isMap()) {
 			key = keyObj.getZsonMap().get(ZsonUtils.LINK);
 		} else if (keyObj.isList()) {
