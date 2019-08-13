@@ -12,6 +12,11 @@ QQ：408129370
 
 QQ群：536192476
 
+MAVEN仓库地址
+====
+
+https://mvnrepository.com/artifact/link.zhangfei/zson
+
 使用场景
 ====
 设定一个json串：
